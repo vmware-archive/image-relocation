@@ -494,6 +494,36 @@ var _ = Describe("Name", func() {
 					Expect(newRef.String()).To(Equal("docker.io/library/ubuntu@sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9"))
 				})
 			})
+
+			Context("when the image name is digested", func() {
+			    Context("when the digest is the same as that in the image name", func() {
+					BeforeEach(func() {
+						var err error
+						ref, err = image.NewName("ubuntu@sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9")
+						Expect(err).NotTo(HaveOccurred())
+					})
+
+					It("should not change the image name", func() {
+						Expect(err).NotTo(HaveOccurred())
+						Expect(newRef).To(Equal(ref))
+					})
+			    })
+
+			    Context("when the digest is different from that in the image name", func() {
+					BeforeEach(func() {
+						var err error
+						ref, err = image.NewName("ubuntu@sha256:ffffbfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9")
+						Expect(err).NotTo(HaveOccurred())
+					})
+
+					It("should set the digest (and assume the caller knows what they are doing)", func() {
+						Expect(err).NotTo(HaveOccurred())
+						Expect(newRef.Tag()).To(Equal(""))
+						Expect(newRef.Digest().String()).To(Equal("sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9"))
+						Expect(newRef.String()).To(Equal("docker.io/library/ubuntu@sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9"))
+					})
+			    })
+			})
 		})
 
 		Context("when the digest is invalid", func() {
@@ -552,7 +582,7 @@ var _ = Describe("Name", func() {
 				Expect(newRef).To(Equal(ref))
 			})
 		})
-		
+
 		Context("when the image name is tagged but not digested", func() {
 			BeforeEach(func() {
 				var err error

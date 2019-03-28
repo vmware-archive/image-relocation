@@ -25,6 +25,9 @@ type Client interface {
 	// Digest returns the digest of the given image or an error if the image does not exist or the digest is unavailable.
 	Digest(image.Name) (image.Digest, error)
 
+	// Copy copies the given source image to the given target and returns the image's digest (which is preserved).
+	Copy(source image.Name, target image.Name) (image.Digest, error)
+
 	// NewLayout creates a Layout for the Client and creates a corresponding directory containing a new OCI image layout at
 	// the given file system path.
 	NewLayout(path string) (Layout, error)
@@ -47,6 +50,25 @@ func (r client) Digest(n image.Name) (image.Digest, error) {
 	}
 
 	hash, err := img.Digest()
+	if err != nil {
+		return image.EmptyDigest, err
+	}
+
+	return image.NewDigest(hash.String()), nil
+}
+
+func (r client) Copy(source image.Name, target image.Name) (image.Digest, error) {
+	img, err := readRemoteImage(source)
+	if err != nil {
+		return image.EmptyDigest, err
+	}
+
+	hash, err := img.Digest()
+	if err != nil {
+		return image.EmptyDigest, err
+	}
+
+	err = writeRemoteImage(img, target)
 	if err != nil {
 		return image.EmptyDigest, err
 	}

@@ -31,6 +31,13 @@ func readRemoteImage(n image.Name) (v1.Image, error) {
 		return nil, err
 	}
 
+	if n.Tag() == "" && n.Digest() == image.EmptyDigest {
+		// use default tag
+		n, err = n.WithTag("latest")
+		if err != nil {
+			return nil, err
+		}
+	}
 	ref, err := name.ParseReference(n.String(), name.StrictValidation)
 	if err != nil {
 		return nil, err
@@ -54,7 +61,7 @@ func writeRemoteImage(i v1.Image, n image.Name) error {
 }
 
 func resolve(n image.Name) (authn.Authenticator, error) {
-	repo, err := name.NewRepository(n.WithoutTag().String(), name.WeakValidation)
+	repo, err := name.NewRepository(n.WithoutTagOrDigest().String(), name.WeakValidation)
 	if err != nil {
 		return nil, err
 	}
