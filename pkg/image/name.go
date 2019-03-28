@@ -99,7 +99,12 @@ func (img Name) Digest() Digest {
 	return EmptyDigest
 }
 
+// Deprecated: use WithoutTagOrDigest instead.
 func (img Name) WithoutTag() Name {
+	return img.WithoutTagOrDigest()
+}
+
+func (img Name) WithoutTagOrDigest() Name {
 	return Name{reference.TrimNamed(img)}
 }
 
@@ -110,6 +115,16 @@ func (img Name) WithDigest(digest Digest) (Name, error) {
 	}
 
 	return Name{digested}, nil
+}
+
+func (img Name) WithoutDigest() Name {
+	n := img.WithoutTagOrDigest()
+	tag := img.Tag()
+	if tag == "" {
+		return n
+	}
+	n, _ = n.WithTag(tag)
+	return n
 }
 
 // Synonyms returns the equivalent image names for a given image name. The synonyms are not necessarily

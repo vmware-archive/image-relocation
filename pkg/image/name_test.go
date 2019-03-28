@@ -390,11 +390,11 @@ var _ = Describe("Name", func() {
 		})
 	})
 
-	Describe("WithoutTag", func() {
+	Describe("WithoutTagOrDigest", func() {
 		var newRef image.Name
 
 		JustBeforeEach(func() {
-			newRef = ref.WithoutTag()
+			newRef = ref.WithoutTagOrDigest()
 		})
 
 		Context("when the image name is tagged", func() {
@@ -405,6 +405,32 @@ var _ = Describe("Name", func() {
 			})
 
 			It("should remove the tag", func() {
+				Expect(newRef.Tag()).To(Equal(""))
+				Expect(newRef.String()).To(Equal("docker.io/library/ubuntu"))
+			})
+		})
+
+		Context("when the image name is digested", func() {
+			BeforeEach(func() {
+				var err error
+				ref, err = image.NewName("ubuntu@sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should remove the digest", func() {
+				Expect(newRef.Tag()).To(Equal(""))
+				Expect(newRef.String()).To(Equal("docker.io/library/ubuntu"))
+			})
+		})
+
+		Context("when the image name is tagged and digested", func() {
+			BeforeEach(func() {
+				var err error
+				ref, err = image.NewName("ubuntu:some-tag@sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should remove the tag and the digest", func() {
 				Expect(newRef.Tag()).To(Equal(""))
 				Expect(newRef.String()).To(Equal("docker.io/library/ubuntu"))
 			})
@@ -480,6 +506,62 @@ var _ = Describe("Name", func() {
 
 			It("should return a suitable error", func() {
 				Expect(err).To(MatchError("Cannot apply digest 2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9 to image.Name docker.io/library/ubuntu: invalid digest format"))
+			})
+		})
+	})
+
+	Describe("WithoutDigest", func() {
+		var newRef image.Name
+
+		JustBeforeEach(func() {
+			newRef = ref.WithoutDigest()
+		})
+
+		Context("when the image name is digested", func() {
+			BeforeEach(func() {
+				var err error
+				ref, err = image.NewName("ubuntu@sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should remove the digest", func() {
+				Expect(newRef.String()).To(Equal("docker.io/library/ubuntu"))
+			})
+		})
+
+		Context("when the image name is tagged and digested", func() {
+			BeforeEach(func() {
+				var err error
+				ref, err = image.NewName("ubuntu:some-tag@sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should preserve the tag and remove the digest", func() {
+				Expect(newRef.String()).To(Equal("docker.io/library/ubuntu:some-tag"))
+			})
+		})
+
+		Context("when the image name is not tagged or digested", func() {
+			BeforeEach(func() {
+				var err error
+				ref, err = image.NewName("ubuntu")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should not change the image name", func() {
+				Expect(newRef).To(Equal(ref))
+			})
+		})
+		
+		Context("when the image name is tagged but not digested", func() {
+			BeforeEach(func() {
+				var err error
+				ref, err = image.NewName("ubuntu:some-tag")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should not change the image name", func() {
+				Expect(newRef).To(Equal(ref))
 			})
 		})
 	})
