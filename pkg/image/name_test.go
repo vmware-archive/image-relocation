@@ -130,7 +130,7 @@ var _ = Describe("Name", func() {
 			})
 
 			It("should include the digest", func() {
-				Expect(ref.Digest()).To(Equal(image.NewDigest("sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef")))
+				Expect(ref.Digest()).To(Equal(newDigest("sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef")))
 			})
 
 			It("should return a suitable string form", func() {
@@ -171,7 +171,7 @@ var _ = Describe("Name", func() {
 			})
 
 			It("should include the digest", func() {
-				Expect(ref.Digest()).To(Equal(image.NewDigest("sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef")))
+				Expect(ref.Digest()).To(Equal(newDigest("sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef")))
 			})
 
 			It("should return a suitable string form", func() {
@@ -282,7 +282,7 @@ var _ = Describe("Name", func() {
 							Expect(s.Tag()).To(Equal("18.10"))
 
 							By("Digest")
-							Expect(s.Digest()).To(Equal(image.NewDigest("sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef")))
+							Expect(s.Digest()).To(Equal(newDigest("sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef")))
 
 							By("Path")
 							Expect(s.Path()).To(Equal("library/ubuntu"))
@@ -321,10 +321,6 @@ var _ = Describe("Name", func() {
 
 		It("should return itself as the only synonym", func() {
 			Expect(ref.Synonyms()).To(ConsistOf(image.EmptyName))
-		})
-
-		It("should normalize to itself", func() {
-			Expect(ref.Normalize()).To(Equal(ref))
 		})
 
 		It("should panic when asked for its path", func() {
@@ -462,7 +458,7 @@ var _ = Describe("Name", func() {
 
 		Context("when the digest is valid", func() {
 			BeforeEach(func() {
-				digest = image.NewDigest("sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9")
+				digest = newDigest("sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9")
 			})
 
 			Context("when the image name is tagged", func() {
@@ -528,14 +524,14 @@ var _ = Describe("Name", func() {
 
 		Context("when the digest is invalid", func() {
 			BeforeEach(func() {
-				digest = image.NewDigest("2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9")
+				digest = image.EmptyDigest
 				var err error
 				ref, err = image.NewName("ubuntu")
 				Expect(err).NotTo(HaveOccurred())
 			})
 
 			It("should return a suitable error", func() {
-				Expect(err).To(MatchError("Cannot apply digest 2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9 to image.Name docker.io/library/ubuntu: invalid digest format"))
+				Expect(err).To(MatchError("Cannot apply digest  to image.Name docker.io/library/ubuntu: invalid digest format"))
 			})
 		})
 	})
@@ -603,4 +599,10 @@ func synonymStrings(ref image.Name) []string {
 		ss = append(ss, s.String())
 	}
 	return ss
+}
+
+func newDigest(dig string) image.Digest {
+	d, err := image.NewDigest(dig)
+	Expect(err).NotTo(HaveOccurred())
+	return d
 }

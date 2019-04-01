@@ -27,8 +27,12 @@ import (
 	"github.com/pivotal/image-relocation/pkg/image"
 )
 
+// PathMapping is a type of function which maps a given Name to a new Name by apply a repository prefix.
 type PathMapping func(repoPrefix string, originalImage image.Name) image.Name
 
+// FlattenRepPath maps the given Name to a new Name with a given repository prefix.
+// It aims to avoid collisions between repositories and to include enough of the original name
+// to make it recognizable by a human being.
 func FlattenRepoPath(repoPrefix string, originalImage image.Name) image.Name {
 	hasher := md5.New()
 	hasher.Write([]byte(originalImage.Name()))
@@ -43,7 +47,7 @@ func FlattenRepoPath(repoPrefix string, originalImage image.Name) image.Name {
 	}
 	mn, err := image.NewName(mp)
 	if err != nil {
-		panic(err) // handle more gracefully
+		panic(err) // should not happen
 	}
 	return mn
 }
@@ -63,6 +67,9 @@ func crunch(components []string, size int) []string {
 			return comp
 		}
 
+	}
+	if len(components) > 0 && len(components[0]) <= size {
+		return []string{components[0]}
 	}
 	return []string{}
 }

@@ -39,6 +39,7 @@ type Client interface {
 
 type client struct {}
 
+// NewRegistryClient returns a new Client.
 func NewRegistryClient() Client {
 	return client{}
 }
@@ -54,7 +55,7 @@ func (r client) Digest(n image.Name) (image.Digest, error) {
 		return image.EmptyDigest, err
 	}
 
-	return image.NewDigest(hash.String()), nil
+	return image.NewDigest(hash.String())
 }
 
 func (r client) Copy(source image.Name, target image.Name) (image.Digest, error) {
@@ -73,5 +74,5 @@ func (r client) Copy(source image.Name, target image.Name) (image.Digest, error)
 		return image.EmptyDigest, err
 	}
 
-	return image.NewDigest(hash.String()), nil
+	return image.NewDigest(hash.String())
 }

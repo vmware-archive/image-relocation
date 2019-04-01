@@ -130,6 +130,20 @@ var _ = Describe("Path Mapping", func() {
 			})
 		})
 
+		Context("when the image path is long and has two elements", func() {
+			BeforeEach(func() {
+				var err error
+				name, err = image.NewName("some.registry.com/some-user/axxxxxxxxxabxxxxxxxxxbcxxxxxxxxxcdxxxxxxxxxd" +
+					"exxxxxxxxxefxxxxxxxxxfgxxxxxxxxxghxxxxxxxxxhixxxxxxxxxijxxxxxxxxxjkxxxxxxxxxklxxxxxxxxxl" +
+					"mxxxxxxxxxmnxxxxxxxxxnoxxxxxxxxxopxxxxxxxxxpqxxxxxxxxxqrxxxxxxxxxrsxxxxxxxxxstxxxxxxxxx")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should omit some portions of the path", func() {
+				Expect(mapped).To(Equal("test.host/testuser/some-user-a363dc80420c33618202ba2828aec456"))
+			})
+		})
+
 		Context("when the image path is long and has three elements", func() {
 			BeforeEach(func() {
 				var err error
@@ -144,17 +158,17 @@ var _ = Describe("Path Mapping", func() {
 			})
 		})
 
-		Context("when the image path is long and has two elements", func() {
+		Context("when the first element of the image path is long", func() {
 			BeforeEach(func() {
 				var err error
-				name, err = image.NewName("some.registry.com/some-user/axxxxxxxxxabxxxxxxxxxbcxxxxxxxxxcdxxxxxxxxxd" +
+				name, err = image.NewName("some.registry.com/axxxxxxxxxabxxxxxxxxxbcxxxxxxxxxcdxxxxxxxxxd" +
 					"exxxxxxxxxefxxxxxxxxxfgxxxxxxxxxghxxxxxxxxxhixxxxxxxxxijxxxxxxxxxjkxxxxxxxxxklxxxxxxxxxl" +
-					"mxxxxxxxxxmnxxxxxxxxxnoxxxxxxxxxopxxxxxxxxxpqxxxxxxxxxqrxxxxxxxxxrsxxxxxxxxxstxxxxxxxxx")
+					"mxxxxxxxxxmnxxxxxxxxxnoxxxxxxxxxopxxxxxxxxxpqxxxxxxxxxqrxxxxxxxxxrsxxxxxxxxxstxxxxxxxxx/suffix")
 				Expect(err).NotTo(HaveOccurred())
 			})
 
 			It("should omit some portions of the path", func() {
-				Expect(mapped).To(Equal("test.host/testuser/a363dc80420c33618202ba2828aec456"))
+				Expect(mapped).To(Equal("test.host/testuser/suffix-3fa7b8289050d7d4fe5d56f3098397a0"))
 			})
 		})
 	})

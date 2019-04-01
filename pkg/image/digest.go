@@ -23,16 +23,25 @@ type Digest struct {
 	dig digest.Digest
 }
 
-func NewDigest(dig string) Digest {
-	return Digest{digest.Digest(dig)}
+// NewDigest returns the Digest for a given digest string or an error if the digest string is invalid.
+// The digest string must be of the form "alg:hash" where alg is an algorithm, such as sha256, and hash
+// is a string output by that algorithm.
+func NewDigest(dig string) (Digest, error) {
+	d, err := digest.Parse(dig)
+	if err != nil {
+		return EmptyDigest, err
+	}
+	return Digest{d}, nil
 }
 
+// EmptyDigest is an invalid, zero value for Digest.
 var EmptyDigest Digest
 
 func init() {
 	EmptyDigest = Digest{""}
 }
 
+// String returns the string form of the Digest.
 func (d Digest) String() string {
 	return string(d.dig)
 }

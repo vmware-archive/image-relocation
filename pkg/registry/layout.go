@@ -92,7 +92,7 @@ func (l *imageLayout) Add(n image.Name) (image.Digest, error) {
 		return image.EmptyDigest, err
 	}
 
-	return image.NewDigest(hash.String()), nil
+	return image.NewDigest(hash.String())
 }
 
 func (l *imageLayout) Push(digest image.Digest, n image.Name) error {

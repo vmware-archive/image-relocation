@@ -34,17 +34,20 @@ type Name struct {
 	ref reference.Named
 }
 
+// EmptyName is an invalid, zero value for Name.
 var EmptyName Name
 
 func init() {
 	EmptyName = Name{nil}
 }
 
+// NewName returns the Name for the given image reference or an error if the image reference is invalid.
 func NewName(i string) (Name, error) {
 	ref, err := reference.ParseNormalizedNamed(i)
 	return Name{ref}, err
 }
 
+// Normalize returns a fully-qualified equivalent to the Name. Useful on synonyms.
 func (img Name) Normalize() Name {
 	if img.ref == nil {
 		return EmptyName
@@ -56,10 +59,12 @@ func (img Name) Normalize() Name {
 	return ref
 }
 
+// Name returns the string form of the Name without any tag or digest.
 func (img Name) Name() string {
 	return img.ref.Name()
 }
 
+// String returns a string representation of the Name.
 func (img Name) String() string {
 	if img.ref == nil {
 		return ""
@@ -67,16 +72,19 @@ func (img Name) String() string {
 	return img.ref.String()
 }
 
+// Host returns the host of the Name. See also Path.
 func (img Name) Host() string {
 	h, _ := img.parseHostPath()
 	return h
 }
 
+// Path returns the path of the name. See also Host.
 func (img Name) Path() string {
 	_, p := img.parseHostPath()
 	return p
 }
 
+// Tag returns the tag of the Name or an empty string if the Name is not tagged.
 func (img Name) Tag() string {
 	if taggedRef, ok := img.ref.(reference.Tagged); ok {
 		return taggedRef.Tag()
@@ -84,6 +92,8 @@ func (img Name) Tag() string {
 	return ""
 }
 
+// WithTag returns a new Name with the same value as the Name, but with the given tag. It returns an error if and only
+// if the tag is invalid.
 func (img Name) WithTag(tag string) (Name, error) {
 	namedTagged, err := reference.WithTag(img.ref, tag)
 	if err != nil {
@@ -92,22 +102,25 @@ func (img Name) WithTag(tag string) (Name, error) {
 	return Name{namedTagged}, nil
 }
 
+// Digest returns the digest of the Name or EmptyDigest if the Name does not have a digest.
 func (img Name) Digest() Digest {
 	if digestedRef, ok := img.ref.(reference.Digested); ok {
-		return NewDigest(string(digestedRef.Digest()))
+		d, err := NewDigest(string(digestedRef.Digest()))
+		if err != nil {
+			panic(err) // should never happen
+		}
+		return d
 	}
 	return EmptyDigest
 }
 
-// Deprecated: use WithoutTagOrDigest instead.
-func (img Name) WithoutTag() Name {
-	return img.WithoutTagOrDigest()
-}
-
+// WithoutTagOrDigest returns a new Name with the same value as the Name, but with any tag or digest removed.
 func (img Name) WithoutTagOrDigest() Name {
 	return Name{reference.TrimNamed(img)}
 }
 
+// WithDigest returns a new Name with the same value as the Name, but with the given digest. It returns an error if and only
+// if the digest is invalid.
 func (img Name) WithDigest(digest Digest) (Name, error) {
 	digested, err := reference.WithDigest(img.ref, digest.dig)
 	if err != nil {
@@ -117,6 +130,7 @@ func (img Name) WithDigest(digest Digest) (Name, error) {
 	return Name{digested}, nil
 }
 
+// WithoutDigest returns a new Name with the same value as the Name, but with any digest removed. It preserves any tag.
 func (img Name) WithoutDigest() Name {
 	n := img.WithoutTagOrDigest()
 	tag := img.Tag()
@@ -127,8 +141,8 @@ func (img Name) WithoutDigest() Name {
 	return n
 }
 
-// Synonyms returns the equivalent image names for a given image name. The synonyms are not necessarily
-// normalized: in particular they may not have a host name.
+// Synonyms returns the image names equivalent to a given image name. A synonym is not necessarily
+// normalized: in particular it may not have a host name.
 func (img Name) Synonyms() []Name {
 	if img.ref == nil {
 		return []Name{EmptyName}
