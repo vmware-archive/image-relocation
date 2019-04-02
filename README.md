@@ -1,6 +1,8 @@
 # Docker/OCI image relocation
 
 [![GoDoc](https://godoc.org/github.com/pivotal/image-relocation?status.svg)](https://godoc.org/github.com/pivotal/image-relocation)
+[![Go Report Card](https://goreportcard.com/badge/pivotal/image-relocation)](https://goreportcard.com/report/pivotal/image-relocation)
+
 
 This repository contains a Go module for relocating Docker and OCI images.
 
