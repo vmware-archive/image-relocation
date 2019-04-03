@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-// package registry provides operations on image registries
+// Package registry provides operations on image registries
 package registry

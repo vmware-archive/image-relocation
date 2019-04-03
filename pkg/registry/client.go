@@ -37,7 +37,7 @@ type Client interface {
 	ReadLayout(path string) (Layout, error)
 }
 
-type client struct {}
+type client struct{}
 
 // NewRegistryClient returns a new Client.
 func NewRegistryClient() Client {

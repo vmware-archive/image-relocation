@@ -179,7 +179,7 @@ func (img Name) Synonyms() []Name {
 	}
 
 	names := []Name{}
-	for n, _ := range nameMap {
+	for n := range nameMap {
 		names = append(names, n)
 	}
 

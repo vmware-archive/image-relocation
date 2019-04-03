@@ -54,7 +54,7 @@ func (r client) NewLayout(path string) (Layout, error) {
 
 	return &imageLayout{
 		registryClient: r,
-		layoutPath: lp,
+		layoutPath:     lp,
 	}, nil
 }
 

@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-// package pathmapping maps image names to repositories with new prefixes
+// Package pathmapping maps image names to repositories with new prefixes
 package pathmapping

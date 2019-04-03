@@ -30,7 +30,7 @@ import (
 // PathMapping is a type of function which maps a given Name to a new Name by apply a repository prefix.
 type PathMapping func(repoPrefix string, originalImage image.Name) image.Name
 
-// FlattenRepPath maps the given Name to a new Name with a given repository prefix.
+// FlattenRepoPath maps the given Name to a new Name with a given repository prefix.
 // It aims to avoid collisions between repositories and to include enough of the original name
 // to make it recognizable by a human being.
 func FlattenRepoPath(repoPrefix string, originalImage image.Name) image.Name {
