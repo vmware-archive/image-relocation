@@ -1,0 +1,3 @@
+codecov:
+  ci:
+    - dev.azure.com       # Azure pipelines server
