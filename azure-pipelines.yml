@@ -34,6 +34,6 @@ steps:
   displayName: 'make'
 
 - script: |
-    bash <(curl https://codecov.io/bash) -t {token} -f coverage.xml
+    bash <(curl https://codecov.io/bash) -f coverage.xml
   workingDirectory: '$(modulePath)'
   displayName: 'codecov'
