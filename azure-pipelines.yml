@@ -32,3 +32,7 @@ steps:
     make
   workingDirectory: '$(modulePath)'
   displayName: 'make'
+
+- script: |
+    bash <(curl https://codecov.io/bash) -t {token} -f coverage.xml
+  displayName: 'codecov'
