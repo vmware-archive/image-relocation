@@ -35,4 +35,5 @@ steps:
 
 - script: |
     bash <(curl https://codecov.io/bash) -t {token} -f coverage.xml
+  workingDirectory: '$(modulePath)'
   displayName: 'codecov'
