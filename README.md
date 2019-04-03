@@ -3,6 +3,7 @@
 [![GoDoc](https://godoc.org/github.com/pivotal/image-relocation?status.svg)](https://godoc.org/github.com/pivotal/image-relocation)
 [![Go Report Card](https://goreportcard.com/badge/pivotal/image-relocation)](https://goreportcard.com/report/pivotal/image-relocation)
 [![Build Status](https://dev.azure.com/projectriff/pivotal-image-relocation/_apis/build/status/pivotal.image-relocation?branchName=master)](https://dev.azure.com/projectriff/pivotal-image-relocation/_build/latest?definitionId=11&branchName=master)
+[![codecov](https://codecov.io/gh/pivotal/image-relocation/branch/master/graph/badge.svg)](https://codecov.io/gh/pivotal/image-relocation)
 
 This repository contains a Go module for relocating Docker and OCI images.
 
