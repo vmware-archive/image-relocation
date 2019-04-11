@@ -25,5 +25,5 @@ import (
 
 func TestCommands(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Core Suite")
+	RunSpecs(t, "Path Mapping Suite")
 }
