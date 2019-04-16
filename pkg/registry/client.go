@@ -17,6 +17,9 @@
 package registry
 
 import (
+	"fmt"
+
+	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/pivotal/image-relocation/pkg/image"
 )
 
@@ -37,15 +40,21 @@ type Client interface {
 	ReadLayout(path string) (Layout, error)
 }
 
-type client struct{}
+type client struct {
+	readRemoteImage  func(n image.Name) (v1.Image, error)
+	writeRemoteImage func(i v1.Image, n image.Name) error
+}
 
 // NewRegistryClient returns a new Client.
 func NewRegistryClient() Client {
-	return client{}
+	return &client{
+		readRemoteImage:  readRemoteImage,
+		writeRemoteImage: writeRemoteImage,
+	}
 }
 
-func (r client) Digest(n image.Name) (image.Digest, error) {
-	img, err := readRemoteImage(n)
+func (r *client) Digest(n image.Name) (image.Digest, error) {
+	img, err := r.readRemoteImage(n)
 	if err != nil {
 		return image.EmptyDigest, err
 	}
@@ -58,20 +67,20 @@ func (r client) Digest(n image.Name) (image.Digest, error) {
 	return image.NewDigest(hash.String())
 }
 
-func (r client) Copy(source image.Name, target image.Name) (image.Digest, error) {
-	img, err := readRemoteImage(source)
+func (r *client) Copy(source image.Name, target image.Name) (image.Digest, error) {
+	img, err := r.readRemoteImage(source)
 	if err != nil {
-		return image.EmptyDigest, err
+		return image.EmptyDigest, fmt.Errorf("failed to read image %v: %v", source, err)
 	}
 
 	hash, err := img.Digest()
 	if err != nil {
-		return image.EmptyDigest, err
+		return image.EmptyDigest, fmt.Errorf("failed to read digest of image %v: %v", source, err)
 	}
 
-	err = writeRemoteImage(img, target)
+	err = r.writeRemoteImage(img, target)
 	if err != nil {
-		return image.EmptyDigest, err
+		return image.EmptyDigest, fmt.Errorf("failed to write image %v: %v", target, err)
 	}
 
 	return image.NewDigest(hash.String())
