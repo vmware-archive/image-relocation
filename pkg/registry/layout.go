@@ -17,11 +17,12 @@
 package registry
 
 import (
-	"github.com/google/go-containerregistry/pkg/v1"
+	"os"
+
+	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/empty"
 	"github.com/google/go-containerregistry/pkg/v1/layout"
 	"github.com/pivotal/image-relocation/pkg/image"
-	"os"
 )
 
 const (
@@ -37,7 +38,7 @@ type Layout interface {
 	Push(digest image.Digest, name image.Name) error
 }
 
-func (r client) NewLayout(path string) (Layout, error) {
+func (r *client) NewLayout(path string) (Layout, error) {
 	if _, err := os.Stat(path); err != nil {
 		if !os.IsNotExist(err) {
 			return nil, err
@@ -58,7 +59,7 @@ func (r client) NewLayout(path string) (Layout, error) {
 	}, nil
 }
 
-func (r client) ReadLayout(path string) (Layout, error) {
+func (r *client) ReadLayout(path string) (Layout, error) {
 	lp, err := layout.FromPath(path)
 	if err != nil {
 		return nil, err
@@ -70,12 +71,12 @@ func (r client) ReadLayout(path string) (Layout, error) {
 }
 
 type imageLayout struct {
-	registryClient client
+	registryClient *client
 	layoutPath     layout.Path
 }
 
 func (l *imageLayout) Add(n image.Name) (image.Digest, error) {
-	img, err := readRemoteImage(n)
+	img, err := l.registryClient.readRemoteImage(n)
 	if err != nil {
 		return image.EmptyDigest, err
 	}
@@ -109,5 +110,5 @@ func (l *imageLayout) Push(digest image.Digest, n image.Name) error {
 		return err
 	}
 
-	return writeRemoteImage(i, n)
+	return l.registryClient.writeRemoteImage(i, n)
 }
