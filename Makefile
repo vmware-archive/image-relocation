@@ -11,4 +11,6 @@ check-counterfeiter:
 
 gen-mocks: check-counterfeiter
 	counterfeiter -o pkg/registry/imagefakes/fake_image.go github.com/google/go-containerregistry/pkg/v1.Image
+	counterfeiter -o pkg/registry/imagefakes/fake_image_index.go github.com/google/go-containerregistry/pkg/v1.ImageIndex
+	counterfeiter pkg/registry LayoutPath
 

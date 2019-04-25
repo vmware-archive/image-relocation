@@ -44,7 +44,7 @@ var _ = Describe("Name", func() {
 			})
 
 			It("should return a suitable error", func() {
-				Expect(err).To(MatchError("invalid reference format"))
+				Expect(err).To(MatchError("invalid image reference: \"\""))
 			})
 		})
 
