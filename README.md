@@ -65,3 +65,7 @@ The Go packages provided by this repository include:
 
 For details, please refer to the [package documentation](https://godoc.org/github.com/pivotal/image-relocation).
 
+## Command line interface
+
+An CLI, `irel`, is provided for manual use and experimentation. Issue `make irel` to build it.
+

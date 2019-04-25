@@ -2,6 +2,8 @@
 
 all: test
 
+GO_SOURCES = $(shell find . -type f -name '*.go')
+
 test:
 	GO111MODULE=on go test ./... -coverprofile=coverage.txt -covermode=atomic
 
@@ -13,4 +15,7 @@ gen-mocks: check-counterfeiter
 	counterfeiter -o pkg/registry/imagefakes/fake_image.go github.com/google/go-containerregistry/pkg/v1.Image
 	counterfeiter -o pkg/registry/imagefakes/fake_image_index.go github.com/google/go-containerregistry/pkg/v1.ImageIndex
 	counterfeiter pkg/registry LayoutPath
+
+irel: $(GO_SOURCES)
+	GO111MODULE=on go build -o irel cmd/irel/main.go
 
