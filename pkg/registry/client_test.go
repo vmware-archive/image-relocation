@@ -30,6 +30,7 @@ var _ = Describe("Client", func() {
 	var (
 		cl              *client
 		dig             image.Digest
+		rawManifestSize int64
 		err             error
 		testError       error
 		readArg         image.Name
@@ -47,6 +48,7 @@ var _ = Describe("Client", func() {
 		fakeImage = &imagefakes.FakeImage{}
 		hash = createHash("sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef")
 		fakeImage.DigestReturns(hash, nil)
+		fakeImage.RawManifestReturns([]byte{0,1,2}, nil)
 		readResultImage = fakeImage
 		readResultErr = nil
 		writeResultErr = nil
@@ -64,19 +66,27 @@ var _ = Describe("Client", func() {
 
 	Describe("Copy", func() {
 		JustBeforeEach(func() {
-			dig, err = cl.Copy(createName("source"), createName("target"))
+			dig, rawManifestSize, err = cl.Copy(createName("source"), createName("target"))
 		})
 
 		Context("when no errors occur", func() {
 			It("should succeed", func() {
 				Expect(err).NotTo(HaveOccurred())
+				_ = rawManifestSize
 			})
 
 			It("should copy the source repository to the target repository", func() {
 				Expect(readArg.String()).To(Equal("docker.io/library/source"))
 				Expect(writeArgImage).To(Equal(readResultImage))
 				Expect(writeArgName.String()).To(Equal("docker.io/library/target"))
+			})
+
+			It("should return the correct digest", func() {
 				Expect(dig.String()).To(Equal(hash.String()))
+			})
+
+			It("should return the correct raw manifest size", func() {
+				Expect(rawManifestSize).To(Equal(int64(3)))
 			})
 		})
 
@@ -98,6 +108,16 @@ var _ = Describe("Client", func() {
 
 			It("should return a corresponding error", func() {
 				Expect(err).To(MatchError("failed to read digest of image docker.io/library/source: something bad happened"))
+			})
+		})
+
+		Context("when reading the raw manifest of the source image fails", func() {
+			BeforeEach(func() {
+				fakeImage.RawManifestReturns([]byte{}, testError)
+			})
+
+			It("should return a corresponding error", func() {
+				Expect(err).To(MatchError("failed to get raw manifest of image docker.io/library/source: something bad happened"))
 			})
 		})
 
