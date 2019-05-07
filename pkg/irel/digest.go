@@ -46,7 +46,7 @@ func digest(cmd *cobra.Command, args []string) {
 	regClient := registry.NewRegistryClient()
 	dig, err := regClient.Digest(ref)
 	if err != nil {
-		log.Fatalf("copy failed: %v", err)
+		log.Fatalf("digest failed: %v", err)
 	}
 	fmt.Printf("%s\n", dig)
 }
