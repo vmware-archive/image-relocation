@@ -67,5 +67,5 @@ For details, please refer to the [package documentation](https://godoc.org/githu
 
 ## Command line interface
 
-An CLI, `irel`, is provided for manual use and experimentation. Issue `make irel` to build it.
+A CLI, `irel`, is provided for manual use and experimentation. Issue `make irel` to build it.
 
