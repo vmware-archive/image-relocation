@@ -11,7 +11,9 @@ This repository contains a Go module for relocating Docker and OCI images.
 _Relocating_ an image means copying it to another repository, possibly in a private registry.
 
 Using a separate registry has some advantages:
-* It provides complete control over when the image is updated or deleted.
+* It provides complete control over when the image is updated or deleted:
+    * This provides isolation from unwanted updates or deletion of the original image.
+    * If the image becomes stale, for instance when it has known vulnerabilities, it can be deleted.
 * The registry can be hosted on a private network for security or other reasons.
 
 A highly desirable property of image relocation is that the image digest of the relocated image is the same as that of the original images.
