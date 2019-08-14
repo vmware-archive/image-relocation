@@ -18,19 +18,16 @@ package registry
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
-	"github.com/google/go-containerregistry/pkg/v1/daemon"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/pivotal/image-relocation/pkg/image"
 )
 
 var (
-	daemonImageFunc = daemon.Image
 	repoImageFunc   = remote.Image
 	resolveFunc     = authn.DefaultKeychain.Resolve
 	repoWriteFunc   = remote.Write
@@ -54,16 +51,7 @@ func readRemoteImage(n image.Name) (v1.Image, error) {
 		return nil, err
 	}
 
-	img, err := daemonImageFunc(ref)
-	if err != nil {
-		var remoteErr error
-		img, remoteErr = repoImageFunc(ref, remote.WithAuth(auth))
-		if remoteErr != nil {
-			return nil, fmt.Errorf("reading remote image %s failed: %v; attempting to read from daemon also failed: %v", n.String(), remoteErr, err)
-		}
-	}
-
-	return img, nil
+	return remote.Image(ref, remote.WithAuth(auth))
 }
 
 func writeRemoteImage(i v1.Image, n image.Name) error {
