@@ -67,6 +67,12 @@ The Go packages provided by this repository include:
 
 For details, please refer to the [package documentation](https://godoc.org/github.com/pivotal/image-relocation).
 
+### Docker daemon
+
+This repository reads images directly from their repositories and does not attempt to read images
+from the Docker daemon. This is primarily because the daemon doesn't guarantee to provide the 
+same digest of an image as when the image has been pushed to a repository.
+
 ## Command line interface
 
 A CLI, `irel`, is provided for manual use and experimentation. Issue `make irel` to build it.
