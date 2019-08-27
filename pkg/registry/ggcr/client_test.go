@@ -14,59 +14,56 @@
  * limitations under the License.
  */
 
-package registry
+package ggcr
 
 import (
 	"errors"
-
-	v1 "github.com/google/go-containerregistry/pkg/v1"
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/registry/imagefakes"
+	"github.com/pivotal/image-relocation/pkg/registry"
+	"github.com/pivotal/image-relocation/pkg/registry/registryfakes"
 )
 
 var _ = Describe("Client", func() {
 	var (
 		cl              *client
-		dig             image.Digest
+		outputDig       image.Digest
 		rawManifestSize int64
 		err             error
 		testError       error
 		readArg         image.Name
-		readResultImage v1.Image
+		readResultImage registry.Image
 		readResultErr   error
-		writeArgImage   v1.Image
 		writeArgName    image.Name
-		writeResultErr  error
-		hash            v1.Hash
-		fakeImage       *imagefakes.FakeImage
+		dig             image.Digest
+		dig2             image.Digest
+		fakeImage       *registryfakes.FakeImage
 	)
 
 	BeforeEach(func() {
 		cl = &client{}
-		fakeImage = &imagefakes.FakeImage{}
-		hash = createHash("sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef")
-		fakeImage.DigestReturns(hash, nil)
-		fakeImage.RawManifestReturns([]byte{0,1,2}, nil)
+		fakeImage = &registryfakes.FakeImage{}
+		dig = createDigest("sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef")
+		dig2 = createDigest("sha256:afabcafeafabcafeafabcafeafabcafeafabcafeafabcafeafabcafeafabcafe")
+		fakeImage.DigestReturns(dig, nil)
+		fakeImage.WriteStub = func(name image.Name) (digest image.Digest, i int64, e error) {
+			writeArgName = name
+			return dig, 3, nil
+		}
 		readResultImage = fakeImage
 		readResultErr = nil
-		writeResultErr = nil
-		cl.readRemoteImage = func(n image.Name) (v1.Image, error) {
+		cl.readRemoteImage = func(n image.Name) (registry.Image, error) {
 			readArg = n
 			return readResultImage, readResultErr
-		}
-		cl.writeRemoteImage = func(i v1.Image, n image.Name) error {
-			writeArgImage = i
-			writeArgName = n
-			return writeResultErr
 		}
 		testError = errors.New("something bad happened")
 	})
 
 	Describe("Copy", func() {
 		JustBeforeEach(func() {
-			dig, rawManifestSize, err = cl.Copy(createName("source"), createName("target"))
+			outputDig, rawManifestSize, err = cl.Copy(createName("source"), createName("target"))
 		})
 
 		Context("when no errors occur", func() {
@@ -77,12 +74,11 @@ var _ = Describe("Client", func() {
 
 			It("should copy the source repository to the target repository", func() {
 				Expect(readArg.String()).To(Equal("docker.io/library/source"))
-				Expect(writeArgImage).To(Equal(readResultImage))
 				Expect(writeArgName.String()).To(Equal("docker.io/library/target"))
 			})
 
 			It("should return the correct digest", func() {
-				Expect(dig.String()).To(Equal(hash.String()))
+				Expect(outputDig.String()).To(Equal(dig.String()))
 			})
 
 			It("should return the correct raw manifest size", func() {
@@ -103,7 +99,7 @@ var _ = Describe("Client", func() {
 
 		Context("when reading the source image digest fails", func() {
 			BeforeEach(func() {
-				fakeImage.DigestReturns(hash, testError)
+				fakeImage.DigestReturns(dig, testError)
 			})
 
 			It("should return a corresponding error", func() {
@@ -111,27 +107,30 @@ var _ = Describe("Client", func() {
 			})
 		})
 
-		Context("when reading the raw manifest of the source image fails", func() {
+		Context("when writing the target image image fails", func() {
 			BeforeEach(func() {
-				fakeImage.RawManifestReturns([]byte{}, testError)
-			})
-
-			It("should return a corresponding error", func() {
-				Expect(err).To(MatchError("failed to get raw manifest of image docker.io/library/source: something bad happened"))
-			})
-		})
-
-		Context("when writing the target image fails", func() {
-			BeforeEach(func() {
-				writeResultErr = testError
+				fakeImage.WriteStub = func(name image.Name) (digest image.Digest, i int64, e error) {
+					return image.EmptyDigest, 0, testError
+				}
 			})
 
 			It("should return a corresponding error", func() {
 				Expect(err).To(MatchError("failed to write image docker.io/library/target: something bad happened"))
 			})
 		})
-	})
 
+		Context("when writing the target image produces a distinct digest", func() {
+			BeforeEach(func() {
+				fakeImage.WriteStub = func(name image.Name) (digest image.Digest, i int64, e error) {
+					return dig2, 0, nil
+				}
+			})
+
+			It("should return a corresponding error", func() {
+				Expect(err).To(MatchError(fmt.Sprintf("failed to preserve digest of image docker.io/library/source: source digest %v, target digest %v", dig, dig2)))
+			})
+		})
+	})
 })
 
 func createName(n string) image.Name {
@@ -140,8 +139,8 @@ func createName(n string) image.Name {
 	return nm
 }
 
-func createHash(h string) v1.Hash {
-	hsh, err := v1.NewHash(h)
+func createDigest(h string) image.Digest {
+	dig, err := image.NewDigest(h)
 	Expect(err).NotTo(HaveOccurred())
-	return hsh
+	return dig
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package registry_test
+package ggcr_test
 
 import (
 	"testing"

@@ -19,7 +19,7 @@ package irel
 import (
 	"fmt"
 	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/registry"
+	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -43,7 +43,7 @@ func digest(cmd *cobra.Command, args []string) {
 		log.Fatalf("invalid reference %q: %v", refStr, err)
 	}
 
-	regClient := registry.NewRegistryClient()
+	regClient := ggcr.NewRegistryClient()
 	dig, err := regClient.Digest(ref)
 	if err != nil {
 		log.Fatalf("digest failed: %v", err)

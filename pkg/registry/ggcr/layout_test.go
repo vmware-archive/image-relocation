@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package registry_test
+package ggcr_test
 
 import (
 	"errors"
@@ -23,7 +23,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pivotal/image-relocation/pkg/image"
 	"github.com/pivotal/image-relocation/pkg/registry"
-	"github.com/pivotal/image-relocation/pkg/registry/imagefakes"
+	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
+	"github.com/pivotal/image-relocation/pkg/registry/ggcrfakes"
 	"github.com/pivotal/image-relocation/pkg/registry/registryfakes"
 )
 
@@ -31,15 +32,15 @@ var _ = Describe("Layout", func() {
 	var (
 		layout         registry.Layout
 		mockLayoutPath *registryfakes.FakeLayoutPath
-		mockImageIndex *imagefakes.FakeImageIndex
+		mockImageIndex *ggcrfakes.FakeImageIndex
 		testError error
 	)
 
 	BeforeEach(func() {
 		mockLayoutPath = &registryfakes.FakeLayoutPath{}
-		mockImageIndex = &imagefakes.FakeImageIndex{}
+		mockImageIndex = &ggcrfakes.FakeImageIndex{}
 
-		layout = registry.NewImageLayout(nil, mockLayoutPath)
+		layout = ggcr.NewImageLayout(nil, mockLayoutPath)
 
 		testError = errors.New("failed")
 	})
@@ -124,7 +125,5 @@ var _ = Describe("Layout", func() {
 				Expect(err).To(MatchError("invalid image reference: \":\""))
 			})
 		})
-
 	})
-
 })

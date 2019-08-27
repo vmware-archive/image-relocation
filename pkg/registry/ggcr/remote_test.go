@@ -1,8 +1,7 @@
-package registry
+package ggcr
 
 import (
 	"errors"
-
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
@@ -10,13 +9,13 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/registry/imagefakes"
+	"github.com/pivotal/image-relocation/pkg/registry/ggcrfakes"
 )
 
 var _ = Describe("remote utilities", func() {
 	var (
 		imageName image.Name
-		mockImage *imagefakes.FakeImage
+		mockImage *ggcrfakes.FakeImage
 		testError error
 		err       error
 	)
@@ -26,7 +25,7 @@ var _ = Describe("remote utilities", func() {
 		imageName, err = image.NewName("imagename")
 		Expect(err).NotTo(HaveOccurred())
 
-		mockImage = &imagefakes.FakeImage{}
+		mockImage = &ggcrfakes.FakeImage{}
 		h1, err := v1.NewHash("sha256:0000000000000000000000000000000000000000000000000000000000000000")
 		Expect(err).NotTo(HaveOccurred())
 		mockImage.DigestReturns(h1, nil)
@@ -34,9 +33,11 @@ var _ = Describe("remote utilities", func() {
 		testError = errors.New("hard cheese")
 	})
 
+	// FIXME: get coverage back up
+
 	Describe("readRemoteImage", func() {
 		JustBeforeEach(func() {
-			_, err = readRemoteImage(imageName)
+			_, err = readRemoteImage(nil, nil)(imageName)
 		})
 
 		BeforeEach(func() {

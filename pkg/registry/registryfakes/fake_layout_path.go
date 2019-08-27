@@ -2,11 +2,11 @@
 package registryfakes
 
 import (
-	sync "sync"
+	"sync"
 
 	v1 "github.com/google/go-containerregistry/pkg/v1"
-	layout "github.com/google/go-containerregistry/pkg/v1/layout"
-	registry "github.com/pivotal/image-relocation/pkg/registry"
+	"github.com/google/go-containerregistry/pkg/v1/layout"
+	"github.com/pivotal/image-relocation/pkg/registry"
 )
 
 type FakeLayoutPath struct {
@@ -20,6 +20,18 @@ type FakeLayoutPath struct {
 		result1 error
 	}
 	appendImageReturnsOnCall map[int]struct {
+		result1 error
+	}
+	AppendIndexStub        func(v1.ImageIndex, ...layout.Option) error
+	appendIndexMutex       sync.RWMutex
+	appendIndexArgsForCall []struct {
+		arg1 v1.ImageIndex
+		arg2 []layout.Option
+	}
+	appendIndexReturns struct {
+		result1 error
+	}
+	appendIndexReturnsOnCall map[int]struct {
 		result1 error
 	}
 	ImageIndexStub        func() (v1.ImageIndex, error)
@@ -99,6 +111,67 @@ func (fake *FakeLayoutPath) AppendImageReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
+func (fake *FakeLayoutPath) AppendIndex(arg1 v1.ImageIndex, arg2 ...layout.Option) error {
+	fake.appendIndexMutex.Lock()
+	ret, specificReturn := fake.appendIndexReturnsOnCall[len(fake.appendIndexArgsForCall)]
+	fake.appendIndexArgsForCall = append(fake.appendIndexArgsForCall, struct {
+		arg1 v1.ImageIndex
+		arg2 []layout.Option
+	}{arg1, arg2})
+	fake.recordInvocation("AppendIndex", []interface{}{arg1, arg2})
+	fake.appendIndexMutex.Unlock()
+	if fake.AppendIndexStub != nil {
+		return fake.AppendIndexStub(arg1, arg2...)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.appendIndexReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeLayoutPath) AppendIndexCallCount() int {
+	fake.appendIndexMutex.RLock()
+	defer fake.appendIndexMutex.RUnlock()
+	return len(fake.appendIndexArgsForCall)
+}
+
+func (fake *FakeLayoutPath) AppendIndexCalls(stub func(v1.ImageIndex, ...layout.Option) error) {
+	fake.appendIndexMutex.Lock()
+	defer fake.appendIndexMutex.Unlock()
+	fake.AppendIndexStub = stub
+}
+
+func (fake *FakeLayoutPath) AppendIndexArgsForCall(i int) (v1.ImageIndex, []layout.Option) {
+	fake.appendIndexMutex.RLock()
+	defer fake.appendIndexMutex.RUnlock()
+	argsForCall := fake.appendIndexArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeLayoutPath) AppendIndexReturns(result1 error) {
+	fake.appendIndexMutex.Lock()
+	defer fake.appendIndexMutex.Unlock()
+	fake.AppendIndexStub = nil
+	fake.appendIndexReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeLayoutPath) AppendIndexReturnsOnCall(i int, result1 error) {
+	fake.appendIndexMutex.Lock()
+	defer fake.appendIndexMutex.Unlock()
+	fake.AppendIndexStub = nil
+	if fake.appendIndexReturnsOnCall == nil {
+		fake.appendIndexReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.appendIndexReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *FakeLayoutPath) ImageIndex() (v1.ImageIndex, error) {
 	fake.imageIndexMutex.Lock()
 	ret, specificReturn := fake.imageIndexReturnsOnCall[len(fake.imageIndexArgsForCall)]
@@ -159,6 +232,8 @@ func (fake *FakeLayoutPath) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.appendImageMutex.RLock()
 	defer fake.appendImageMutex.RUnlock()
+	fake.appendIndexMutex.RLock()
+	defer fake.appendIndexMutex.RUnlock()
 	fake.imageIndexMutex.RLock()
 	defer fake.imageIndexMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
