@@ -19,7 +19,7 @@ package irel
 import (
 	"fmt"
 	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/registry"
+	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -40,8 +40,8 @@ func layoutAdd(cmd *cobra.Command, args []string) {
 		log.Fatalf("invalid reference %q: %v", refStr, err)
 	}
 
-	regClient := registry.NewRegistryClient()
-	layout, err := regClient.ReadLayout(layoutPath)
+	regClient := ggcr.NewRegistryClient()
+	layout, err := regClient.NewLayout(layoutPath)
 	if err != nil {
 		layout, err = regClient.NewLayout(layoutPath)
 		if err != nil {

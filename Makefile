@@ -13,9 +13,10 @@ check-counterfeiter:
 	@which counterfeiter > /dev/null || (echo counterfeiter not found: issue "GO111MODULE=off go get -u github.com/maxbrunsfeld/counterfeiter" && false)
 
 gen-mocks: check-counterfeiter
-	counterfeiter -o pkg/registry/imagefakes/fake_image.go github.com/google/go-containerregistry/pkg/v1.Image
-	counterfeiter -o pkg/registry/imagefakes/fake_image_index.go github.com/google/go-containerregistry/pkg/v1.ImageIndex
+	counterfeiter -o pkg/registry/ggcrfakes/fake_image.go github.com/google/go-containerregistry/pkg/v1.Image
+	counterfeiter -o pkg/registry/ggcrfakes/fake_image_index.go github.com/google/go-containerregistry/pkg/v1.ImageIndex
 	counterfeiter pkg/registry LayoutPath
+	counterfeiter pkg/registry Image
 
 irel: $(GO_SOURCES)
 	GO111MODULE=on go build -o $(OUTPUT) cmd/irel/main.go

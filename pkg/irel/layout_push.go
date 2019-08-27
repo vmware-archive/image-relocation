@@ -19,7 +19,7 @@ package irel
 import (
 	"fmt"
 	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/registry"
+	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -45,7 +45,7 @@ func layoutPush(cmd *cobra.Command, args []string) {
 		log.Fatalf("invalid digest %q: %v", digStr, err)
 	}
 
-	regClient := registry.NewRegistryClient()
+	regClient := ggcr.NewRegistryClient()
 	layout, err := regClient.ReadLayout(layoutPath)
 	if err != nil {
 		log.Fatalf("failed to access OCI image layout: %v", err)
