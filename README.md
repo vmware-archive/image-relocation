@@ -156,3 +156,10 @@ which provided a command line interface for relocating the images in its distrib
 The riff project also [experimented](https://github.com/projectriff/cnab-k8s-installer-base) with using this
 repository to create CNAB bundles which could relocate themselves (before duffle could do relocation).
 
+## Alternatives
+
+If this repository isn't quite what you're looking for, try:
+* the underlying library: [ggcr](https://github.com/google/go-containerregistry)
+* [kbld](https://github.com/k14s/kbld) (also based on ggcr)
+* [k8s container image promoter](https://github.com/kubernetes-sigs/k8s-container-image-promoter) (also based on ggcr)
+
