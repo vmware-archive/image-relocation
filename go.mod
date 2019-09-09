@@ -6,7 +6,7 @@ require (
 	github.com/docker/docker v0.7.3-0.20190811013603-90af4ba5e7fa
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
-	github.com/google/go-containerregistry v0.0.0-20190729175742-ef12d49c8daf
+	github.com/google/go-containerregistry v0.0.0-20190906220946-8c11e941c480
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
