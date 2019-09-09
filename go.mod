@@ -18,3 +18,5 @@ require (
 	google.golang.org/grpc v1.22.1 // indirect
 	k8s.io/apimachinery v0.0.0-20190806215851-162a2dabc72f // indirect
 )
+
+go 1.12
