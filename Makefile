@@ -1,7 +1,8 @@
-.PHONY: test all check-counterfeiter gen-mocks
+.PHONY: test all check-counterfeiter gen-mocks release
 
 all: test
 
+OUTPUT = ./irel
 GO_SOURCES = $(shell find . -type f -name '*.go')
 
 test:
@@ -19,3 +20,7 @@ gen-mocks: check-counterfeiter
 irel: $(GO_SOURCES)
 	GO111MODULE=on go build -o irel cmd/irel/main.go
 
+release: $(GO_SOURCES) test
+	GOOS=darwin   GOARCH=amd64 go build -o $(OUTPUT)     cmd/irel/main.go && tar -czf irel-darwin-amd64.tgz  $(OUTPUT)     && rm -f $(OUTPUT)
+	GOOS=linux    GOARCH=amd64 go build -o $(OUTPUT)     cmd/irel/main.go && tar -czf irel-linux-amd64.tgz   $(OUTPUT)     && rm -f $(OUTPUT)
+	GOOS=windows  GOARCH=amd64 go build -o $(OUTPUT).exe cmd/irel/main.go && zip -mq  irel-windows-amd64.zip $(OUTPUT).exe && rm -f $(OUTPUT).exe
