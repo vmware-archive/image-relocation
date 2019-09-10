@@ -26,10 +26,10 @@ import (
 
 func newCmdLayoutAdd() *cobra.Command {
 	return &cobra.Command{
-		Use:     "add LAYOUT_PATH REF",
-		Short:   "copy an image from a remote repository to an OCI image layout",
-		Args:    cobra.ExactArgs(2),
-		Run:     layoutAdd,
+		Use:   "add LAYOUT_PATH REF",
+		Short: "copy an image from a remote repository to an OCI image layout",
+		Args:  cobra.ExactArgs(2),
+		Run:   layoutAdd,
 	}
 }
 
@@ -41,9 +41,12 @@ func layoutAdd(cmd *cobra.Command, args []string) {
 	}
 
 	regClient := registry.NewRegistryClient()
-	layout, err := regClient.NewLayout(layoutPath)
+	layout, err := regClient.ReadLayout(layoutPath)
 	if err != nil {
-		log.Fatalf("failed to create OCI image layout: %v", err)
+		layout, err = regClient.NewLayout(layoutPath)
+		if err != nil {
+			log.Fatalf("failed to create OCI image layout: %v", err)
+		}
 	}
 
 	dig, err := layout.Add(ref)
