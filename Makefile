@@ -18,7 +18,7 @@ gen-mocks: check-counterfeiter
 	counterfeiter pkg/registry LayoutPath
 
 irel: $(GO_SOURCES)
-	GO111MODULE=on go build -o irel cmd/irel/main.go
+	GO111MODULE=on go build -o $(OUTPUT) cmd/irel/main.go
 
 release: $(GO_SOURCES) test
 	GOOS=darwin   GOARCH=amd64 go build -o $(OUTPUT)     cmd/irel/main.go && tar -czf irel-darwin-amd64.tgz  $(OUTPUT)     && rm -f $(OUTPUT)
