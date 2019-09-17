@@ -163,3 +163,6 @@ If this repository isn't quite what you're looking for, try:
 * [kbld](https://github.com/k14s/kbld) (also based on ggcr)
 * [k8s container image promoter](https://github.com/kubernetes-sigs/k8s-container-image-promoter) (also based on ggcr)
 
+## Development
+
+To create a release on github, simply push a tag beginning with "v".
