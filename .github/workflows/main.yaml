@@ -1,0 +1,23 @@
+name: release workflow
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  build:
+    name: release action
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-go@v1
+      with:
+        go-version: '1.12'
+    - name: build binaries
+      run: |
+        make release
+    - name: populate release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: irel-*-amd64*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
