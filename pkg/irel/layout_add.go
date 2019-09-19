@@ -18,10 +18,11 @@ package irel
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/pivotal/image-relocation/pkg/image"
 	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 func newCmdLayoutAdd() *cobra.Command {
@@ -41,7 +42,7 @@ func layoutAdd(cmd *cobra.Command, args []string) {
 	}
 
 	regClient := ggcr.NewRegistryClient()
-	layout, err := regClient.NewLayout(layoutPath)
+	layout, err := regClient.ReadLayout(layoutPath)
 	if err != nil {
 		layout, err = regClient.NewLayout(layoutPath)
 		if err != nil {
