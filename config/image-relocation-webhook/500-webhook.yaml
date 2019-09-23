@@ -1,0 +1,27 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: ir-webhook
+  annotations:
+    certmanager.k8s.io/inject-ca-from: "image-relocation/ir-webhook-server-cert"
+webhooks:
+- name: image-relocating-webhook.image-relocation.pivotal.io
+  namespaceSelector:
+    matchExpressions:
+      - key: image-relocating-webhook.image-relocation.pivotal.io/enabled
+        operator: NotIn
+        values:
+          - "false"
+  rules:
+  - apiGroups: [""]
+    apiVersions: ["v1", "v1beta1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["pods"]
+    # scope: "*" # apparently scope is not valid here
+  failurePolicy: Fail
+  clientConfig:
+    #! caBundle is injected by certmanager
+    service:
+      name: ir-webhook
+      namespace: image-relocation
+      path: /image-relocation

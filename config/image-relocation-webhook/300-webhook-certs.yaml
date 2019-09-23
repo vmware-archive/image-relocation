@@ -1,0 +1,21 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Issuer
+metadata:
+  name: ir-webhook-server-cert-issuer
+  namespace: image-relocation
+spec:
+  selfSigned: {}
+---
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: ir-webhook-server-cert
+  namespace: image-relocation
+spec:
+  commonName: ir-webhook.image-relocation.svc
+  dnsNames:
+  - ir-webhook.image-relocation.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: ir-webhook-server-cert-issuer
+  secretName: ir-webhook-server-cert

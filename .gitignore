@@ -3,3 +3,4 @@ coverage.txt
 /irel-darwin-amd64.tgz
 /irel-linux-amd64.tgz
 /irel-windows-amd64.zip
+/image-relocation-webhook
