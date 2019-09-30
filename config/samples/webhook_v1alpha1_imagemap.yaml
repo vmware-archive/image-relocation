@@ -1,0 +1,7 @@
+apiVersion: webhook.image-relocation.pivotal.io/v1alpha1
+kind: ImageMap
+metadata:
+  name: bootcamp-sample
+spec:
+  map:
+    "gcr.io/google-samples/kubernetes-bootcamp:v1": "<repo prefix>/kubernetes-bootcamp:v1"

@@ -20,26 +20,28 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"gomodules.xyz/jsonpatch/v2"
 	"net/http"
+
+	"gomodules.xyz/jsonpatch/v2"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/pivotal/image-relocation/pkg/multimap"
 )
 
 type imageReferenceRelocator struct {
-	relocationMapping map[string]string
-	client            client.Client
-	decoder           *admission.Decoder
+	comp    multimap.Composite
+	client  client.Client
+	decoder *admission.Decoder
 }
 
-func NewImageReferenceRelocator() *imageReferenceRelocator {
+func NewImageReferenceRelocator(comp multimap.Composite) *imageReferenceRelocator {
 	return &imageReferenceRelocator{
-		// TODO: this mapping will be maintained by a controller. Use a fixed value until then...
-		relocationMapping: map[string]string{"gcr.io/google-samples/kubernetes-bootcamp:v1": "gcr.io/cf-sandbox-gnormington/kubernetes-bootcamp:v1"},
+		comp: comp,
 	}
 }
 
@@ -74,7 +76,7 @@ func (i *imageReferenceRelocator) Handle(ctx context.Context, req admission.Requ
 
 	for j, _ := range pod.Spec.InitContainers {
 		container := &pod.Spec.InitContainers[j]
-		if relocated, ok := i.relocationMapping[container.Image]; ok {
+		if relocated := i.comp.Map(container.Image); relocated != container.Image {
 			modified = true
 			container.Image = relocated
 		}
@@ -82,7 +84,7 @@ func (i *imageReferenceRelocator) Handle(ctx context.Context, req admission.Requ
 
 	for j, _ := range pod.Spec.Containers {
 		container := &pod.Spec.Containers[j]
-		if relocated, ok := i.relocationMapping[container.Image]; ok {
+		if relocated := i.comp.Map(container.Image); relocated != container.Image {
 			modified = true
 			container.Image = relocated
 		}

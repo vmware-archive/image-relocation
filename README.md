@@ -133,6 +133,7 @@ The Go packages provided by this repository include:
    * obtaining the digest of an image
    * copying images between repositories
    * copying images between repositories and an [OCI image layout](https://github.com/opencontainers/image-spec/blob/master/image-layout.md) on disk, e.g. to implement thick bundles.
+ * a `MutatingAdmissionWebhook` and controller for modifying image references in Kubernetes. See the separate [README](cmd/image-relocation-webhook/README.md).
 
 For details, please refer to the [package documentation](https://godoc.org/github.com/pivotal/image-relocation).
 
