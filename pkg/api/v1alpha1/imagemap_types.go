@@ -24,7 +24,7 @@ import (
 
 // ClusterImageMapSpec defines the desired state of ClusterImageMap
 type ClusterImageMapSpec struct {
-	Map map[string]string `json:"map,omitempty"`
+	Map map[string]string `json:"map,omitempty"` // FIXME: use array of structs
 }
 
 func (in *ClusterImageMapSpec) DeepCopyInto(out *ClusterImageMapSpec) {
@@ -36,7 +36,8 @@ func (in *ClusterImageMapSpec) DeepCopyInto(out *ClusterImageMapSpec) {
 
 // ClusterImageMapStatus defines the observed state of ClusterImageMap
 type ClusterImageMapStatus struct {
-	Map map[string]string `json:"map,omitempty"`
+	Map map[string]string `json:"map,omitempty"` // FIXME: delete this
+	// FIXME add some indication of clashing
 }
 
 func (in *ClusterImageMapStatus) DeepCopyInto(out *ClusterImageMapStatus) {

@@ -53,7 +53,9 @@ func (r *ImageMapReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	log.Info("adding")
 	if err := r.Map.Add(req.NamespacedName.String(), imageMap.Spec.Map); err != nil {
 		log.Error(err, "unable to add ClusterImageMap")
-		return ctrl.Result{}, err
+		return ctrl.Result{
+			Requeue: false, // or true for a soft failure FIXME
+		}, err
 	}
 
 	return ctrl.Result{}, nil
