@@ -22,46 +22,46 @@ import (
 
 // NOTE: json tags are required.  Any new fields must have json tags for the fields to be serialized.
 
-// ImageMapSpec defines the desired state of ImageMap
-type ImageMapSpec struct {
+// ClusterImageMapSpec defines the desired state of ClusterImageMap
+type ClusterImageMapSpec struct {
 	Map map[string]string `json:"map,omitempty"`
 }
 
-func (in *ImageMapSpec) DeepCopyInto(out *ImageMapSpec) {
+func (in *ClusterImageMapSpec) DeepCopyInto(out *ClusterImageMapSpec) {
 	out.Map = make(map[string]string, len(in.Map))
 	for k, v := range in.Map {
 		out.Map[k] = v
 	}
 }
 
-// ImageMapStatus defines the observed state of ImageMap
-type ImageMapStatus struct {
+// ClusterImageMapStatus defines the observed state of ClusterImageMap
+type ClusterImageMapStatus struct {
 	Map map[string]string `json:"map,omitempty"`
 }
 
-func (in *ImageMapStatus) DeepCopyInto(out *ImageMapStatus) {
+func (in *ClusterImageMapStatus) DeepCopyInto(out *ClusterImageMapStatus) {
 	out.Map = make(map[string]string, len(in.Map))
 	for k, v := range in.Map {
 		out.Map[k] = v
 	}
 }
 
-// ImageMap is the Schema for the imagemaps API
-type ImageMap struct {
+// ClusterImageMap is the Schema for the imagemaps API
+type ClusterImageMap struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ImageMapSpec   `json:"spec,omitempty"`
-	Status ImageMapStatus `json:"status,omitempty"`
+	Spec   ClusterImageMapSpec   `json:"spec,omitempty"`
+	Status ClusterImageMapStatus `json:"status,omitempty"`
 }
 
-// ImageMapList contains a list of ImageMap
-type ImageMapList struct {
+// ClusterImageMapList contains a list of ClusterImageMap
+type ClusterImageMapList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []ImageMap `json:"items"`
+	Items           []ClusterImageMap `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&ImageMap{}, &ImageMapList{})
+	SchemeBuilder.Register(&ClusterImageMap{}, &ClusterImageMapList{})
 }

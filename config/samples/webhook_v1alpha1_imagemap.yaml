@@ -1,5 +1,5 @@
-apiVersion: webhook.image-relocation.pivotal.io/v1alpha1
-kind: ImageMap
+apiVersion: image-relocation.pivotal.io/v1alpha1
+kind: ClusterImageMap
 metadata:
   name: bootcamp-sample
 spec:

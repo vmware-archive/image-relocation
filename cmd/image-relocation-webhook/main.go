@@ -81,10 +81,10 @@ func main() {
 
 	if err = (&controller.ImageMapReconciler{
 		Client: mgr.GetClient(),
-		Log:    log.WithName("controller").WithName("ImageMap"),
+		Log:    log.WithName("controller").WithName("ClusterImageMap"),
 		Map: comp,
 	}).SetupWithManager(mgr); err != nil {
-		entryLog.Error(err, "unable to create controller", "controller", "ImageMap")
+		entryLog.Error(err, "unable to create controller", "controller", "ClusterImageMap")
 		os.Exit(1)
 	}
 

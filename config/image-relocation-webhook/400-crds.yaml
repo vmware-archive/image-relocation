@@ -1,9 +1,9 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: imagemaps.webhook.image-relocation.pivotal.io
+  name: imagemaps.image-relocation.pivotal.io
 spec:
-  group: webhook.image-relocation.pivotal.io
+  group: image-relocation.pivotal.io
   version: v1alpha1
   versions:
     - name: v1alpha1
@@ -13,7 +13,7 @@ spec:
   names:
     plural: imagemaps
     singular: imagemap
-    kind: ImageMap
+    kind: ClusterImageMap
     shortNames:
       - im
 status:

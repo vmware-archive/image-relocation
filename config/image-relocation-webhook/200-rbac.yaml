@@ -9,6 +9,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: ir-cluster-role
 rules:
+# FIXME: tie this down to the exact permissions needed
 - apiGroups: ["*"]
   resources: ["*"]
   verbs: ["get", "list", "watch"]

@@ -28,7 +28,7 @@ import (
 	"github.com/pivotal/image-relocation/pkg/multimap"
 )
 
-// ImageMapReconciler reconciles a ImageMap object
+// ImageMapReconciler reconciles a ClusterImageMap object
 type ImageMapReconciler struct {
 	client.Client
 	Log logr.Logger
@@ -37,22 +37,22 @@ type ImageMapReconciler struct {
 
 func (r *ImageMapReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
-	log := r.Log.WithValues("ImageMap", req.NamespacedName)
+	log := r.Log.WithValues("ClusterImageMap", req.NamespacedName)
 
-	var imageMap ir.ImageMap
+	var imageMap ir.ClusterImageMap
 	if err := r.Get(ctx, req.NamespacedName, &imageMap); err != nil {
 		if apierrs.IsNotFound(err) {
 			log.Info("deleting")
 			_ = r.Map.Delete(req.NamespacedName.String()) // ignore error in case it has already been deleted
 			return ctrl.Result{}, nil
 		}
-		log.Error(err, "unable to get ImageMap")
+		log.Error(err, "unable to get ClusterImageMap")
 		return ctrl.Result{}, err
 	}
 
 	log.Info("adding")
 	if err := r.Map.Add(req.NamespacedName.String(), imageMap.Spec.Map); err != nil {
-		log.Error(err, "unable to add ImageMap")
+		log.Error(err, "unable to add ClusterImageMap")
 		return ctrl.Result{}, err
 	}
 
@@ -61,6 +61,6 @@ func (r *ImageMapReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 func (r *ImageMapReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&webhookv1alpha1.ImageMap{}).
+		For(&webhookv1alpha1.ClusterImageMap{}).
 		Complete(r)
 }
