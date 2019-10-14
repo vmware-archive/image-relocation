@@ -2,11 +2,11 @@
 package registryfakes
 
 import (
-	"sync"
+	sync "sync"
 
-	"github.com/google/go-containerregistry/pkg/v1/layout"
-	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/registry"
+	layout "github.com/google/go-containerregistry/pkg/v1/layout"
+	image "github.com/pivotal/image-relocation/pkg/image"
+	registry "github.com/pivotal/image-relocation/pkg/registry"
 )
 
 type FakeImage struct {

@@ -18,12 +18,14 @@ package ggcr
 
 import (
 	"fmt"
-	"github.com/pivotal/image-relocation/pkg/registry"
 	"os"
+
+	"github.com/pivotal/image-relocation/pkg/registry"
 
 	"github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/empty"
 	"github.com/google/go-containerregistry/pkg/v1/layout"
+
 	"github.com/pivotal/image-relocation/pkg/image"
 )
 
@@ -85,7 +87,7 @@ func (l *imageLayout) Add(n image.Name) (image.Digest, error) {
 	annotations := map[string]string{
 		refNameAnnotation: n.String(),
 	}
-	if err:= img.AppendToLayout(l.layoutPath, layout.WithAnnotations(annotations)); err != nil {
+	if err := img.AppendToLayout(l.layoutPath, layout.WithAnnotations(annotations)); err != nil {
 		return image.EmptyDigest, err
 	}
 
@@ -108,7 +110,11 @@ func (l *imageLayout) Push(digest image.Digest, n image.Name) error {
 	}
 	i, err := imageIndex.Image(hash)
 	if err != nil {
-		return err
+		j, err2 := imageIndex.ImageIndex(hash)
+		if err2 != nil {
+			return err
+		}
+		return l.registryClient.writeRemoteIndex(j, n)
 	}
 
 	return l.registryClient.writeRemoteImage(i, n)
