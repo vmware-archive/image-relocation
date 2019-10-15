@@ -17,6 +17,7 @@ gen-mocks: check-counterfeiter
 	counterfeiter -o pkg/registry/ggcrfakes/fake_image_index.go github.com/google/go-containerregistry/pkg/v1.ImageIndex
 	counterfeiter pkg/registry LayoutPath
 	counterfeiter pkg/registry Image
+	counterfeiter pkg/registry/ggcr RegistryClient
 
 irel: $(GO_SOURCES)
 	GO111MODULE=on go build -o $(OUTPUT) cmd/irel/main.go

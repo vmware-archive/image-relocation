@@ -18,29 +18,34 @@ package ggcr_test
 
 import (
 	"errors"
+
 	"github.com/google/go-containerregistry/pkg/v1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
 	"github.com/pivotal/image-relocation/pkg/image"
 	"github.com/pivotal/image-relocation/pkg/registry"
 	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
+	x "github.com/pivotal/image-relocation/pkg/registry/ggcr/ggcrfakes"
 	"github.com/pivotal/image-relocation/pkg/registry/ggcrfakes"
 	"github.com/pivotal/image-relocation/pkg/registry/registryfakes"
 )
 
 var _ = Describe("Layout", func() {
 	var (
-		layout         registry.Layout
-		mockLayoutPath *registryfakes.FakeLayoutPath
-		mockImageIndex *ggcrfakes.FakeImageIndex
-		testError error
+		layout             registry.Layout
+		mockLayoutPath     *registryfakes.FakeLayoutPath
+		mockImageIndex     *ggcrfakes.FakeImageIndex
+		mockRegistryClient *x.FakeRegistryClient
+		testError          error
 	)
 
 	BeforeEach(func() {
 		mockLayoutPath = &registryfakes.FakeLayoutPath{}
 		mockImageIndex = &ggcrfakes.FakeImageIndex{}
+		mockRegistryClient = &x.FakeRegistryClient{}
 
-		layout = ggcr.NewImageLayout(nil, mockLayoutPath)
+		layout = ggcr.NewImageLayout(mockRegistryClient, mockLayoutPath)
 
 		testError = errors.New("failed")
 	})
@@ -92,23 +97,23 @@ var _ = Describe("Layout", func() {
 		})
 
 		Context("when accessing the image index returns an error", func() {
-		    BeforeEach(func() {
+			BeforeEach(func() {
 				mockLayoutPath.ImageIndexReturns(nil, testError)
 			})
 
-		    It("should propagate the error", func() {
-		        Expect(err).To(MatchError(testError))
-		    })
+			It("should propagate the error", func() {
+				Expect(err).To(MatchError(testError))
+			})
 		})
 
 		Context("when accessing the index manifest returns an error", func() {
-		    BeforeEach(func() {
+			BeforeEach(func() {
 				mockImageIndex.IndexManifestReturns(nil, testError)
 			})
 
-		    It("should propagate the error", func() {
-		        Expect(err).To(MatchError(testError))
-		    })
+			It("should propagate the error", func() {
+				Expect(err).To(MatchError(testError))
+			})
 		})
 
 		Context("when an image in the layout has an invalid name", func() {
@@ -123,6 +128,77 @@ var _ = Describe("Layout", func() {
 
 			It("should return a suitable error", func() {
 				Expect(err).To(MatchError("invalid image reference: \":\""))
+			})
+		})
+	})
+
+	Describe("Push", func() {
+		const testDigest = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+		var (
+			digest    image.Digest
+			targetRef image.Name
+			err       error
+		)
+
+		BeforeEach(func() {
+			digest, err = image.NewDigest(testDigest)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		JustBeforeEach(func() {
+			err = layout.Push(digest, targetRef)
+		})
+
+		Context("when the digest refers to a manifest", func() {
+			var mockImage *ggcrfakes.FakeImage
+
+			BeforeEach(func() {
+				mockImage = &ggcrfakes.FakeImage{}
+				mockLayoutPath.ImageIndexReturns(mockImageIndex, nil)
+				mockImageIndex.ImageReturns(mockImage, nil)
+			})
+
+			It("should write the manifest", func() {
+				h, er := v1.NewHash(testDigest)
+				Expect(er).NotTo(HaveOccurred())
+				Expect(mockImageIndex.ImageArgsForCall(0)).To(Equal(h))
+				im, target := mockRegistryClient.WriteRemoteImageArgsForCall(0)
+				Expect(im).To(Equal(mockImage))
+				Expect(target).To(Equal(targetRef))
+			})
+		})
+
+		Context("when the digest refers to an image index", func() {
+			var mockImageIndex2 *ggcrfakes.FakeImageIndex
+
+			BeforeEach(func() {
+				mockImageIndex2 = &ggcrfakes.FakeImageIndex{}
+				mockLayoutPath.ImageIndexReturns(mockImageIndex, nil)
+				mockImageIndex.ImageReturns(nil, errors.New("some error"))
+				mockImageIndex.ImageIndexReturns(mockImageIndex2, nil)
+			})
+
+			It("should write the manifest", func() {
+				h, er := v1.NewHash(testDigest)
+				Expect(er).NotTo(HaveOccurred())
+				Expect(mockImageIndex.ImageArgsForCall(0)).To(Equal(h))
+				Expect(mockImageIndex.ImageIndexArgsForCall(0)).To(Equal(h))
+				idx, target := mockRegistryClient.WriteRemoteIndexArgsForCall(0)
+				Expect(idx).To(Equal(mockImageIndex2))
+				Expect(target).To(Equal(targetRef))
+			})
+		})
+
+		Context("when the digest refers neither to a manifest nor an image index", func() {
+			BeforeEach(func() {
+				mockLayoutPath.ImageIndexReturns(mockImageIndex, nil)
+				mockImageIndex.ImageReturns(nil, errors.New("image error"))
+				mockImageIndex.ImageIndexReturns(nil, errors.New("index error"))
+			})
+
+			It("should return either the image lookup error or the index lookup error", func() {
+				// Note: in practice the errors are identical, e.g. "could not find descriptor in index: sha256:..."
+				Expect(err).To(Or(MatchError("image error"), MatchError("index error")))
 			})
 		})
 	})

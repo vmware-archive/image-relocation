@@ -18,7 +18,9 @@ package ggcr
 
 import (
 	"fmt"
+
 	v1 "github.com/google/go-containerregistry/pkg/v1"
+
 	"github.com/pivotal/image-relocation/pkg/image"
 	"github.com/pivotal/image-relocation/pkg/registry"
 )
@@ -33,7 +35,7 @@ type client struct {
 }
 
 // NewRegistryClient returns a new Client.
-func NewRegistryClient() registry.Client {
+func NewRegistryClient() *client {
 	return &client{
 		readRemoteImage:  readRemoteImage(writeRemoteImage, writeRemoteIndex),
 		writeRemoteImage: writeRemoteImage,
@@ -68,10 +70,22 @@ func (r *client) Copy(source image.Name, target image.Name) (image.Digest, int64
 
 	targetDigest, s, err := img.Write(target)
 	if err != nil {
-		return image.EmptyDigest, 0 , fmt.Errorf("failed to write image %v: %v", target, err)
+		return image.EmptyDigest, 0, fmt.Errorf("failed to write image %v: %v", target, err)
 	}
 	if sourceDigest != targetDigest {
 		return image.EmptyDigest, 0, fmt.Errorf("failed to preserve digest of image %v: source digest %v, target digest %v", source, sourceDigest, targetDigest)
 	}
 	return targetDigest, s, err
+}
+
+func (r *client) ReadRemoteImage(n image.Name) (registry.Image, error) {
+	return r.readRemoteImage(n)
+}
+
+func (r *client) WriteRemoteImage(i v1.Image, n image.Name) error {
+	return r.writeRemoteImage(i, n)
+}
+
+func (r *client) WriteRemoteIndex(i v1.ImageIndex, n image.Name) error {
+	return r.writeRemoteIndex(i, n)
 }

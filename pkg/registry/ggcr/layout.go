@@ -49,10 +49,7 @@ func (r *client) NewLayout(path string) (registry.Layout, error) {
 		return nil, err
 	}
 
-	return &imageLayout{
-		registryClient: r,
-		layoutPath:     lp,
-	}, nil
+	return NewImageLayout(r, lp), nil
 }
 
 func (r *client) ReadLayout(path string) (registry.Layout, error) {
@@ -67,11 +64,17 @@ func (r *client) ReadLayout(path string) (registry.Layout, error) {
 }
 
 type imageLayout struct {
-	registryClient *client
+	registryClient RegistryClient
 	layoutPath     registry.LayoutPath
 }
 
-func NewImageLayout(registryClient *client, layoutPath registry.LayoutPath) registry.Layout {
+type RegistryClient interface {
+	ReadRemoteImage(n image.Name) (registry.Image, error)
+	WriteRemoteImage(i v1.Image, n image.Name) error
+	WriteRemoteIndex(i v1.ImageIndex, n image.Name) error
+}
+
+func NewImageLayout(registryClient RegistryClient, layoutPath registry.LayoutPath) registry.Layout {
 	return &imageLayout{
 		registryClient: registryClient,
 		layoutPath:     layoutPath,
@@ -79,7 +82,7 @@ func NewImageLayout(registryClient *client, layoutPath registry.LayoutPath) regi
 }
 
 func (l *imageLayout) Add(n image.Name) (image.Digest, error) {
-	img, err := l.registryClient.readRemoteImage(n)
+	img, err := l.registryClient.ReadRemoteImage(n)
 	if err != nil {
 		return image.EmptyDigest, err
 	}
@@ -108,16 +111,16 @@ func (l *imageLayout) Push(digest image.Digest, n image.Name) error {
 	if err != nil {
 		return err
 	}
-	i, err := imageIndex.Image(hash)
+	im, err := imageIndex.Image(hash)
 	if err != nil {
-		j, err2 := imageIndex.ImageIndex(hash)
-		if err2 != nil {
+		idx, err := imageIndex.ImageIndex(hash)
+		if err != nil {
 			return err
 		}
-		return l.registryClient.writeRemoteIndex(j, n)
+		return l.registryClient.WriteRemoteIndex(idx, n)
 	}
 
-	return l.registryClient.writeRemoteImage(i, n)
+	return l.registryClient.WriteRemoteImage(im, n)
 }
 
 func (l *imageLayout) Find(n image.Name) (image.Digest, error) {
