@@ -4,24 +4,11 @@ package registryfakes
 import (
 	sync "sync"
 
-	layout "github.com/google/go-containerregistry/pkg/v1/layout"
 	image "github.com/pivotal/image-relocation/pkg/image"
 	registry "github.com/pivotal/image-relocation/pkg/registry"
 )
 
 type FakeImage struct {
-	AppendToLayoutStub        func(registry.LayoutPath, ...layout.Option) error
-	appendToLayoutMutex       sync.RWMutex
-	appendToLayoutArgsForCall []struct {
-		arg1 registry.LayoutPath
-		arg2 []layout.Option
-	}
-	appendToLayoutReturns struct {
-		result1 error
-	}
-	appendToLayoutReturnsOnCall map[int]struct {
-		result1 error
-	}
 	DigestStub        func() (image.Digest, error)
 	digestMutex       sync.RWMutex
 	digestArgsForCall []struct {
@@ -51,67 +38,6 @@ type FakeImage struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
-}
-
-func (fake *FakeImage) AppendToLayout(arg1 registry.LayoutPath, arg2 ...layout.Option) error {
-	fake.appendToLayoutMutex.Lock()
-	ret, specificReturn := fake.appendToLayoutReturnsOnCall[len(fake.appendToLayoutArgsForCall)]
-	fake.appendToLayoutArgsForCall = append(fake.appendToLayoutArgsForCall, struct {
-		arg1 registry.LayoutPath
-		arg2 []layout.Option
-	}{arg1, arg2})
-	fake.recordInvocation("AppendToLayout", []interface{}{arg1, arg2})
-	fake.appendToLayoutMutex.Unlock()
-	if fake.AppendToLayoutStub != nil {
-		return fake.AppendToLayoutStub(arg1, arg2...)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.appendToLayoutReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeImage) AppendToLayoutCallCount() int {
-	fake.appendToLayoutMutex.RLock()
-	defer fake.appendToLayoutMutex.RUnlock()
-	return len(fake.appendToLayoutArgsForCall)
-}
-
-func (fake *FakeImage) AppendToLayoutCalls(stub func(registry.LayoutPath, ...layout.Option) error) {
-	fake.appendToLayoutMutex.Lock()
-	defer fake.appendToLayoutMutex.Unlock()
-	fake.AppendToLayoutStub = stub
-}
-
-func (fake *FakeImage) AppendToLayoutArgsForCall(i int) (registry.LayoutPath, []layout.Option) {
-	fake.appendToLayoutMutex.RLock()
-	defer fake.appendToLayoutMutex.RUnlock()
-	argsForCall := fake.appendToLayoutArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *FakeImage) AppendToLayoutReturns(result1 error) {
-	fake.appendToLayoutMutex.Lock()
-	defer fake.appendToLayoutMutex.Unlock()
-	fake.AppendToLayoutStub = nil
-	fake.appendToLayoutReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *FakeImage) AppendToLayoutReturnsOnCall(i int, result1 error) {
-	fake.appendToLayoutMutex.Lock()
-	defer fake.appendToLayoutMutex.Unlock()
-	fake.AppendToLayoutStub = nil
-	if fake.appendToLayoutReturnsOnCall == nil {
-		fake.appendToLayoutReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.appendToLayoutReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
 }
 
 func (fake *FakeImage) Digest() (image.Digest, error) {
@@ -238,8 +164,6 @@ func (fake *FakeImage) WriteReturnsOnCall(i int, result1 image.Digest, result2 i
 func (fake *FakeImage) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.appendToLayoutMutex.RLock()
-	defer fake.appendToLayoutMutex.RUnlock()
 	fake.digestMutex.RLock()
 	defer fake.digestMutex.RUnlock()
 	fake.writeMutex.RLock()

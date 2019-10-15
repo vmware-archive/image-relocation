@@ -20,10 +20,11 @@ import (
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/registry/ggcrfakes"
-	"github.com/pivotal/image-relocation/pkg/registry/registryfakes"
 	"github.com/pkg/errors"
+
+	"github.com/pivotal/image-relocation/pkg/image"
+	"github.com/pivotal/image-relocation/pkg/registry/ggcr/path/pathfakes"
+	"github.com/pivotal/image-relocation/pkg/registry/ggcrfakes"
 )
 
 var _ = Describe("Image", func() {
@@ -60,7 +61,7 @@ var _ = Describe("Image", func() {
 		})
 
 		JustBeforeEach(func() {
-			im = newImageFromManifest(mockManifest, nm, manifestWriterStub)
+			im = newImageFromManifest(mockManifest, manifestWriterStub)
 		})
 
 		Describe("Digest", func() {
@@ -146,7 +147,7 @@ var _ = Describe("Image", func() {
 					})
 
 					It("should return a suitable error", func() {
-						Expect(err).To(MatchError("failed to get raw manifest of image docker.io/library/ubuntu: wat"))
+						Expect(err).To(MatchError("failed to get raw manifest of image: wat"))
 					})
 				})
 			})
@@ -157,20 +158,20 @@ var _ = Describe("Image", func() {
 				})
 
 				It("should return a suitable error", func() {
-					Expect(err).To(MatchError("failed to read digest of image docker.io/library/ubuntu: wat"))
+					Expect(err).To(MatchError("failed to read digest of image: wat"))
 				})
 			})
 		})
 
-		Describe("AppendToLayout", func() {
-			var mockLayoutPath *registryfakes.FakeLayoutPath
+		Describe("appendToLayout", func() {
+			var mockLayoutPath *pathfakes.FakeLayoutPath
 
 			BeforeEach(func() {
-				mockLayoutPath = &registryfakes.FakeLayoutPath{}
+				mockLayoutPath = &pathfakes.FakeLayoutPath{}
 			})
 
 			JustBeforeEach(func() {
-				err = im.AppendToLayout(mockLayoutPath)
+				err = im.appendToLayout(mockLayoutPath)
 			})
 
 			Context("when appending the image succeeds", func() {
@@ -206,7 +207,7 @@ var _ = Describe("Image", func() {
 		})
 
 		JustBeforeEach(func() {
-			im = newImageFromIndex(mockIndex, nm, indexWriterStub)
+			im = newImageFromIndex(mockIndex, indexWriterStub)
 		})
 
 		Describe("Digest", func() {
@@ -292,7 +293,7 @@ var _ = Describe("Image", func() {
 					})
 
 					It("should return a suitable error", func() {
-						Expect(err).To(MatchError("failed to get raw manifest of image index docker.io/library/ubuntu: wat"))
+						Expect(err).To(MatchError("failed to get raw manifest of image index: wat"))
 					})
 				})
 			})
@@ -303,20 +304,20 @@ var _ = Describe("Image", func() {
 				})
 
 				It("should return a suitable error", func() {
-					Expect(err).To(MatchError("failed to read digest of image index docker.io/library/ubuntu: wat"))
+					Expect(err).To(MatchError("failed to read digest of image index: wat"))
 				})
 			})
 		})
 
-		Describe("AppendToLayout", func() {
-			var mockLayoutPath *registryfakes.FakeLayoutPath
+		Describe("appendToLayout", func() {
+			var mockLayoutPath *pathfakes.FakeLayoutPath
 
 			BeforeEach(func() {
-				mockLayoutPath = &registryfakes.FakeLayoutPath{}
+				mockLayoutPath = &pathfakes.FakeLayoutPath{}
 			})
 
 			JustBeforeEach(func() {
-				err = im.AppendToLayout(mockLayoutPath)
+				err = im.appendToLayout(mockLayoutPath)
 			})
 
 			Context("when appending the image succeeds", func() {

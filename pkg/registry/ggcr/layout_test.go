@@ -26,7 +26,8 @@ import (
 	"github.com/pivotal/image-relocation/pkg/image"
 	"github.com/pivotal/image-relocation/pkg/registry"
 	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
-	x "github.com/pivotal/image-relocation/pkg/registry/ggcr/ggcrfakes"
+	"github.com/pivotal/image-relocation/pkg/registry/ggcr/path/pathfakes"
+	"github.com/pivotal/image-relocation/pkg/registry/ggcr/registryclientfakes"
 	"github.com/pivotal/image-relocation/pkg/registry/ggcrfakes"
 	"github.com/pivotal/image-relocation/pkg/registry/registryfakes"
 )
@@ -34,16 +35,16 @@ import (
 var _ = Describe("Layout", func() {
 	var (
 		layout             registry.Layout
-		mockLayoutPath     *registryfakes.FakeLayoutPath
+		mockLayoutPath     *pathfakes.FakeLayoutPath
 		mockImageIndex     *ggcrfakes.FakeImageIndex
-		mockRegistryClient *x.FakeRegistryClient
+		mockRegistryClient *registryclientfakes.FakeRegistryClient
 		testError          error
 	)
 
 	BeforeEach(func() {
-		mockLayoutPath = &registryfakes.FakeLayoutPath{}
+		mockLayoutPath = &pathfakes.FakeLayoutPath{}
 		mockImageIndex = &ggcrfakes.FakeImageIndex{}
-		mockRegistryClient = &x.FakeRegistryClient{}
+		mockRegistryClient = &registryclientfakes.FakeRegistryClient{}
 
 		layout = ggcr.NewImageLayout(mockRegistryClient, mockLayoutPath)
 
@@ -135,14 +136,24 @@ var _ = Describe("Layout", func() {
 	Describe("Push", func() {
 		const testDigest = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 		var (
-			digest    image.Digest
-			targetRef image.Name
-			err       error
+			hash              v1.Hash
+			digest            image.Digest
+			targetRef         image.Name
+			err               error
+			mockAbstractImage *registryfakes.FakeImage
 		)
 
 		BeforeEach(func() {
+			hash, err = v1.NewHash(testDigest)
+			Expect(err).NotTo(HaveOccurred())
+
 			digest, err = image.NewDigest(testDigest)
 			Expect(err).NotTo(HaveOccurred())
+
+			targetRef, err = image.NewName("someref") // actual value is irrelevant
+			Expect(err).NotTo(HaveOccurred())
+
+			mockAbstractImage = &registryfakes.FakeImage{}
 		})
 
 		JustBeforeEach(func() {
@@ -156,15 +167,14 @@ var _ = Describe("Layout", func() {
 				mockImage = &ggcrfakes.FakeImage{}
 				mockLayoutPath.ImageIndexReturns(mockImageIndex, nil)
 				mockImageIndex.ImageReturns(mockImage, nil)
+				mockRegistryClient.NewImageFromManifestReturns(mockAbstractImage)
+				mockAbstractImage.WriteReturns(digest, 99, nil)
 			})
 
 			It("should write the manifest", func() {
-				h, er := v1.NewHash(testDigest)
-				Expect(er).NotTo(HaveOccurred())
-				Expect(mockImageIndex.ImageArgsForCall(0)).To(Equal(h))
-				im, target := mockRegistryClient.WriteRemoteImageArgsForCall(0)
-				Expect(im).To(Equal(mockImage))
-				Expect(target).To(Equal(targetRef))
+				Expect(mockImageIndex.ImageArgsForCall(0)).To(Equal(hash))
+				Expect(mockRegistryClient.NewImageFromManifestArgsForCall(0)).To(Equal(mockImage))
+				Expect(mockAbstractImage.WriteArgsForCall(0)).To(Equal(targetRef))
 			})
 		})
 
@@ -176,16 +186,15 @@ var _ = Describe("Layout", func() {
 				mockLayoutPath.ImageIndexReturns(mockImageIndex, nil)
 				mockImageIndex.ImageReturns(nil, errors.New("some error"))
 				mockImageIndex.ImageIndexReturns(mockImageIndex2, nil)
+				mockRegistryClient.NewImageFromIndexReturns(mockAbstractImage)
+				mockAbstractImage.WriteReturns(digest, 99, nil)
 			})
 
 			It("should write the manifest", func() {
-				h, er := v1.NewHash(testDigest)
-				Expect(er).NotTo(HaveOccurred())
-				Expect(mockImageIndex.ImageArgsForCall(0)).To(Equal(h))
-				Expect(mockImageIndex.ImageIndexArgsForCall(0)).To(Equal(h))
-				idx, target := mockRegistryClient.WriteRemoteIndexArgsForCall(0)
-				Expect(idx).To(Equal(mockImageIndex2))
-				Expect(target).To(Equal(targetRef))
+				Expect(mockImageIndex.ImageArgsForCall(0)).To(Equal(hash))
+				Expect(mockImageIndex.ImageIndexArgsForCall(0)).To(Equal(hash))
+				Expect(mockRegistryClient.NewImageFromIndexArgsForCall(0)).To(Equal(mockImageIndex2))
+				Expect(mockAbstractImage.WriteArgsForCall(0)).To(Equal(targetRef))
 			})
 		})
 
