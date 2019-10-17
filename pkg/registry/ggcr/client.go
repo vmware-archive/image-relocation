@@ -31,6 +31,7 @@ import (
 const outputDirPermissions = 0755
 
 // RegistryClient provides methods for building abstract images.
+// This interface is not intended for external consumption.
 type RegistryClient interface {
 	// ReadRemoteImage builds an abstract image from a repository.
 	ReadRemoteImage(n image.Name) (registry.Image, error)
@@ -51,7 +52,11 @@ type client struct {
 	writeRemoteIndex indexWriter
 }
 
-var _ RegistryClient = &client{}
+var (
+	// Ensure client conforms to the relevant interfaces.
+	_ RegistryClient = &client{}
+	_ registry.Client = &client{}
+)
 
 // NewRegistryClient returns a new Client.
 func NewRegistryClient() *client {
