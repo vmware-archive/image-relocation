@@ -49,14 +49,14 @@ var _ = Describe("remote utilities", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			// In most tests, keychain resolution succeeds
-			resolveFunc = func(registry name.Registry) (authn.Authenticator, error) {
+			resolveFunc = func(authn.Resource) (authn.Authenticator, error) {
 				return nil, nil
 			}
 		})
 
 		Context("when keychain resolution fails", func() {
 			BeforeEach(func() {
-				resolveFunc = func(registry name.Registry) (authn.Authenticator, error) {
+				resolveFunc = func(authn.Resource) (authn.Authenticator, error) {
 					return nil, testError
 				}
 			})

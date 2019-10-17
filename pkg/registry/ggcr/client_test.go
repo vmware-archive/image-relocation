@@ -115,7 +115,7 @@ var _ = Describe("Client", func() {
 			})
 
 			It("should return a corresponding error", func() {
-				Expect(err).To(MatchError("failed to write image docker.io/library/target: something bad happened"))
+				Expect(err).To(MatchError("failed to write image docker.io/library/source to docker.io/library/target: something bad happened"))
 			})
 		})
 
