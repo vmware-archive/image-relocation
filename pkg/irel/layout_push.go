@@ -18,18 +18,18 @@ package irel
 
 import (
 	"fmt"
-	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
-	"github.com/spf13/cobra"
 	"log"
+
+	"github.com/pivotal/image-relocation/pkg/image"
+	"github.com/spf13/cobra"
 )
 
 func newCmdLayoutPush() *cobra.Command {
 	return &cobra.Command{
-		Use:     "push LAYOUT_PATH CONTENT_DIGEST REF",
-		Short:   "copy an image with a given content digest from an OCI image layout to a remote repository",
-		Args:    cobra.ExactArgs(3),
-		Run:     layoutPush,
+		Use:   "push LAYOUT_PATH CONTENT_DIGEST REF",
+		Short: "copy an image with a given content digest from an OCI image layout to a remote repository",
+		Args:  cobra.ExactArgs(3),
+		Run:   layoutPush,
 	}
 }
 
@@ -45,7 +45,7 @@ func layoutPush(cmd *cobra.Command, args []string) {
 		log.Fatalf("invalid digest %q: %v", digStr, err)
 	}
 
-	regClient := ggcr.NewRegistryClient()
+	regClient := mustGetRegistryClient()
 	layout, err := regClient.ReadLayout(layoutPath)
 	if err != nil {
 		log.Fatalf("failed to access OCI image layout: %v", err)
