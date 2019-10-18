@@ -18,6 +18,7 @@ package ggcr
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	v1 "github.com/google/go-containerregistry/pkg/v1"
@@ -43,28 +44,49 @@ type RegistryClient interface {
 	NewImageFromIndex(img v1.ImageIndex) registry.Image
 }
 
-type manifestWriter func(i v1.Image, n image.Name) error
-type indexWriter func(i v1.ImageIndex, n image.Name) error
+type manifestWriter func(v1.Image, image.Name) error
+type indexWriter func(v1.ImageIndex, image.Name) error
 
 type client struct {
-	readRemoteImage  func(n image.Name) (registry.Image, error)
+	readRemoteImage  func(image.Name) (registry.Image, error)
 	writeRemoteImage manifestWriter
 	writeRemoteIndex indexWriter
 }
 
 var (
 	// Ensure client conforms to the relevant interfaces.
-	_ RegistryClient = &client{}
+	_ RegistryClient  = &client{}
 	_ registry.Client = &client{}
 )
 
-// NewRegistryClient returns a new Client.
-func NewRegistryClient() *client {
-	return &client{
-		readRemoteImage:  readRemoteImage(writeRemoteImage, writeRemoteIndex),
-		writeRemoteImage: writeRemoteImage,
-		writeRemoteIndex: writeRemoteIndex,
+// Option represents a functional option for NewRegistryClient.
+type Option func(*client)
+
+// WithTransport overrides the default transport used for remote operations, default is http.DefaultTransport.
+func WithTransport(transport http.RoundTripper) Option {
+	return func(c *client) {
+		writeRemoteImageFunc := writeRemoteImage(transport)
+		writeRemoteIndexFunc := writeRemoteIndex(transport)
+
+		c.readRemoteImage = readRemoteImage(writeRemoteImageFunc, writeRemoteIndexFunc, transport)
+		c.writeRemoteImage = writeRemoteImageFunc
+		c.writeRemoteIndex = writeRemoteIndexFunc
 	}
+}
+
+// NewRegistryClient returns a new Client.
+func NewRegistryClient(options ...Option) *client {
+	client := &client{}
+
+	// default transport
+	WithTransport(http.DefaultTransport)(client)
+
+	// apply functional options
+	for _, opt := range options {
+		opt(client)
+	}
+
+	return client
 }
 
 func (r *client) Digest(n image.Name) (image.Digest, error) {

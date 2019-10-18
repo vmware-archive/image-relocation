@@ -16,12 +16,39 @@
 
 package irel
 
-import "github.com/spf13/cobra"
+import (
+	"log"
 
-var Root = &cobra.Command{
-	Use:               "irel",
-	Short:             "irel is a tool for relocating container images",
-	Run:               func(cmd *cobra.Command, _ []string) { cmd.Usage() },
-	DisableAutoGenTag: true,
+	"github.com/pivotal/image-relocation/pkg/registry"
+	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
+	"github.com/pivotal/image-relocation/pkg/transport"
+
+	"github.com/spf13/cobra"
+)
+
+var (
+	caCertPaths   []string
+	skipTLSVerify bool
+
+	Root = &cobra.Command{
+		Use:               "irel",
+		Short:             "irel is a tool for relocating container images",
+		Run:               func(cmd *cobra.Command, _ []string) { cmd.Usage() },
+		DisableAutoGenTag: true,
+	}
+)
+
+func init() {
+	Root.PersistentFlags().StringSliceVarP(&caCertPaths, "ca-cert-path", "", nil, "Path to CA certificate for verifying registry TLS certificates (can be repeated for multiple certificates)")
+	Root.PersistentFlags().BoolVarP(&skipTLSVerify, "skip-tls-verify", "", false, "Skip TLS certificate verification for registries")
+}
+
+func mustGetRegistryClient() registry.Client {
+	tport, err := transport.NewHttpTransport(caCertPaths, skipTLSVerify)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return ggcr.NewRegistryClient(ggcr.WithTransport(tport))
 }
 

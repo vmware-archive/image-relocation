@@ -18,18 +18,18 @@ package irel
 
 import (
 	"fmt"
-	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
-	"github.com/spf13/cobra"
 	"log"
+
+	"github.com/pivotal/image-relocation/pkg/image"
+	"github.com/spf13/cobra"
 )
 
 func newCmdLayoutFind() *cobra.Command {
 	return &cobra.Command{
-		Use:     "find LAYOUT_PATH REF",
-		Short:   "find an image in an OCI image layout",
-		Args:    cobra.ExactArgs(2),
-		Run:     layoutFind,
+		Use:   "find LAYOUT_PATH REF",
+		Short: "find an image in an OCI image layout",
+		Args:  cobra.ExactArgs(2),
+		Run:   layoutFind,
 	}
 }
 
@@ -40,7 +40,7 @@ func layoutFind(cmd *cobra.Command, args []string) {
 		log.Fatalf("invalid reference %q: %v", refStr, err)
 	}
 
-	regClient := ggcr.NewRegistryClient()
+	regClient := mustGetRegistryClient()
 	layout, err := regClient.ReadLayout(layoutPath)
 	if err != nil {
 		log.Fatalf("failed to create OCI image layout: %v", err)

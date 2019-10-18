@@ -18,10 +18,10 @@ package irel
 
 import (
 	"fmt"
-	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
-	"github.com/spf13/cobra"
 	"log"
+
+	"github.com/pivotal/image-relocation/pkg/image"
+	"github.com/spf13/cobra"
 )
 
 func init() { Root.AddCommand(newCmdDigest()) }
@@ -43,7 +43,7 @@ func digest(cmd *cobra.Command, args []string) {
 		log.Fatalf("invalid reference %q: %v", refStr, err)
 	}
 
-	regClient := ggcr.NewRegistryClient()
+	regClient := mustGetRegistryClient()
 	dig, err := regClient.Digest(ref)
 	if err != nil {
 		log.Fatalf("digest failed: %v", err)

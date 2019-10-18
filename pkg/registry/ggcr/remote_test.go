@@ -3,6 +3,7 @@ package ggcr
 import (
 	"errors"
 	"fmt"
+
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
@@ -15,11 +16,11 @@ import (
 
 var _ = Describe("remote utilities", func() {
 	var (
-		imageName image.Name
-		mockImage *ggcrfakes.FakeImage
+		imageName  image.Name
+		mockImage  *ggcrfakes.FakeImage
 		testDigest string
-	testError error
-	err       error
+		testError  error
+		err        error
 	)
 
 	BeforeEach(func() {
@@ -40,7 +41,7 @@ var _ = Describe("remote utilities", func() {
 
 	Describe("readRemoteImage", func() {
 		JustBeforeEach(func() {
-			_, err = readRemoteImage(nil, nil)(imageName)
+			_, err = readRemoteImage(nil, nil, nil)(imageName)
 		})
 
 		BeforeEach(func() {
@@ -79,7 +80,7 @@ var _ = Describe("remote utilities", func() {
 
 	Describe("writeRemoteImage", func() {
 		JustBeforeEach(func() {
-			err = writeRemoteImage(mockImage, imageName)
+			err = writeRemoteImage(nil)(mockImage, imageName)
 		})
 
 		Context("when writing to the repository succeeds", func() {
@@ -141,7 +142,7 @@ var _ = Describe("remote utilities", func() {
 		})
 
 		JustBeforeEach(func() {
-			err = writeRemoteIndex(mockIndex, imageName)
+			err = writeRemoteIndex(nil)(mockIndex, imageName)
 		})
 
 		Context("when writing to the repository succeeds", func() {

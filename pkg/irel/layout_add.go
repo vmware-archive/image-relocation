@@ -21,7 +21,6 @@ import (
 	"log"
 
 	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/registry/ggcr"
 	"github.com/spf13/cobra"
 )
 
@@ -41,7 +40,7 @@ func layoutAdd(cmd *cobra.Command, args []string) {
 		log.Fatalf("invalid reference %q: %v", refStr, err)
 	}
 
-	regClient := ggcr.NewRegistryClient()
+	regClient := mustGetRegistryClient()
 	layout, err := regClient.ReadLayout(layoutPath)
 	if err != nil {
 		layout, err = regClient.NewLayout(layoutPath)
