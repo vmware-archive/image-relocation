@@ -165,4 +165,7 @@ If this repository isn't quite what you're looking for, try:
 
 ## Development
 
-To create a release on github, simply push a tag beginning with "v".
+To create a release on github, merge a commit which removes "-snapshot" from [VERSION](VERSION) (and, optionally,
+bumps the major version if there has been an incompatible change), then push a tag beginning with "v".
+To continue development of the next release, merge a commit which bumps the minor version in [VERSION](VERSION) and adds
+"-snapshot" back in.
