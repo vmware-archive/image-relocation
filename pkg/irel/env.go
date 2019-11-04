@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package main
+package irel
 
-import (
-	"fmt"
-	"github.com/pivotal/image-relocation/pkg/irel"
-	"os"
+import "fmt"
+
+var (
+	cli_version  = "unknown"
+	cli_gitsha   = "unknown sha"
+	cli_gitdirty = ""
 )
 
-func main() {
-	cmd := irel.Root
-	
-	cmd.Version = irel.CliVersion()
-	cmd.Flags().Bool("version", false, "display CLI version")
-
-	if err := cmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+func CliVersion() string {
+	var version string
+	if cli_gitdirty == "" {
+		version = fmt.Sprintf("%s (%s)", cli_version, cli_gitsha)
+	} else {
+		version = fmt.Sprintf("%s (%s, with local modifications)", cli_version, cli_gitsha)
 	}
+	return version
 }
-

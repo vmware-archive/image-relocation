@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package main
+package irel_test
 
 import (
-	"fmt"
-	"github.com/pivotal/image-relocation/pkg/irel"
-	"os"
+	"testing"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-func main() {
-	cmd := irel.Root
-	
-	cmd.Version = irel.CliVersion()
-	cmd.Flags().Bool("version", false, "display CLI version")
-
-	if err := cmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+func TestIrel(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Irel Suite")
 }
-
