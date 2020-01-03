@@ -2,7 +2,7 @@
   "headerFile": "./license-header.txt",
   "style": "SlashStar",
   "includes": ["**/*.go"],
-  "excludes": ["vendor/**/*"],
+  "excludes": ["**/fake_*.go"],
   "data": {
     "Owner": "Pivotal Software, Inc."
   }
