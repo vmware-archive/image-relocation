@@ -28,22 +28,23 @@ var _ = Describe("FlattenRepoPathPreserveTagDigest", func() {
 	const expectedMappedPath = "test.host/testuser/some-user-some-path-f4cdc2223f0c472921033d606fa74a89"
 
 	var (
-		name   image.Name
-		mapped string
+		name                     image.Name
+		mapped                   string
 		mappedWithoutTagOrDigest string
-		tag string
-		digest string
+		tag                      string
+		digest                   string
 	)
 
 	JustBeforeEach(func() {
-		result := pathmapping.FlattenRepoPathPreserveTagDigest("test.host/testuser", name)
+		result, err := pathmapping.FlattenRepoPathPreserveTagDigest("test.host/testuser", name)
+		Expect(err).NotTo(HaveOccurred())
 		mapped = result.String()
 		tag = result.Tag()
 		digest = result.Digest().String()
 		mappedWithoutTagOrDigest = result.WithoutTagOrDigest().String()
 
 		// check that the mapped path is valid
-		_, err := image.NewName(mapped)
+		_, err = image.NewName(mapped)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -59,11 +60,11 @@ var _ = Describe("FlattenRepoPathPreserveTagDigest", func() {
 		})
 
 		It("should not introduce a tag", func() {
-		    Expect(tag).To(BeEmpty())
+			Expect(tag).To(BeEmpty())
 		})
 
 		It("should not introduce a digest", func() {
-		    Expect(digest).To(BeEmpty())
+			Expect(digest).To(BeEmpty())
 		})
 	})
 

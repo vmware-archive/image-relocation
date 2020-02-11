@@ -24,6 +24,7 @@ var (
 	cli_gitdirty = ""
 )
 
+// CliVersion returns a version string based on values supplied at build time
 func CliVersion() string {
 	var version string
 	if cli_gitdirty == "" {
