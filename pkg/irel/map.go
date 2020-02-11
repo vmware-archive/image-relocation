@@ -18,10 +18,11 @@ package irel
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/pivotal/image-relocation/pkg/image"
 	"github.com/pivotal/image-relocation/pkg/pathmapping"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 func init() { Root.AddCommand(newCmdMap()) }
@@ -49,5 +50,9 @@ func pathMapping(repoPrefix string, args []string) {
 		log.Fatalf("invalid reference %q: %v", refStr, err)
 	}
 
-	fmt.Printf("%s\n", pathmapping.FlattenRepoPathPreserveTagDigest(repoPrefix, ref))
+	mapped, err := pathmapping.FlattenRepoPathPreserveTagDigest(repoPrefix, ref)
+	if err != nil {
+		log.Fatalf("path flattening failed: %v", err)
+	}
+	fmt.Printf("%s\n", mapped)
 }

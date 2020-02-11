@@ -28,12 +28,12 @@ import (
 )
 
 // PathMapping is a type of function which maps a given Name to a new Name by apply a repository prefix.
-type PathMapping func(repoPrefix string, originalImage image.Name) image.Name
+type PathMapping func(repoPrefix string, originalImage image.Name) (image.Name, error)
 
 // FlattenRepoPath maps the given Name to a new Name with a given repository prefix.
 // It aims to avoid collisions between repositories and to include enough of the original name
 // to make it recognizable by a human being.
-func FlattenRepoPath(repoPrefix string, originalImage image.Name) image.Name {
+func FlattenRepoPath(repoPrefix string, originalImage image.Name) (image.Name, error) {
 	hasher := md5.New()
 	hasher.Write([]byte(originalImage.Name()))
 	hash := hex.EncodeToString(hasher.Sum(nil))
@@ -47,9 +47,9 @@ func FlattenRepoPath(repoPrefix string, originalImage image.Name) image.Name {
 	}
 	mn, err := image.NewName(mp)
 	if err != nil {
-		panic(err) // should not happen
+		return image.EmptyName, err // should never occur
 	}
-	return mn
+	return mn, nil
 }
 
 func mappedPath(repoPrefix string, repoPath string, hash string) string {

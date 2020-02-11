@@ -30,6 +30,7 @@ var (
 	caCertPaths   []string
 	skipTLSVerify bool
 
+	// Root is the root of the tree of irel commands
 	Root = &cobra.Command{
 		Use:               "irel",
 		Short:             "irel is a tool for relocating container images",
@@ -51,4 +52,3 @@ func mustGetRegistryClient() registry.Client {
 
 	return ggcr.NewRegistryClient(ggcr.WithTransport(tport))
 }
-

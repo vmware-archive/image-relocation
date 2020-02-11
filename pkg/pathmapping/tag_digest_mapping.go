@@ -23,15 +23,18 @@ import (
 // FlattenRepoPathPreserveTagDigest maps the given Name to a new Name with a given repository prefix.
 // It aims to avoid collisions between repositories and to include enough of the original name
 // to make it recognizable by a human being. It preserves any tag and/or digest.
-func FlattenRepoPathPreserveTagDigest(repoPrefix string, originalImage image.Name) image.Name {
-	rn := FlattenRepoPath(repoPrefix, originalImage)
+func FlattenRepoPathPreserveTagDigest(repoPrefix string, originalImage image.Name) (image.Name, error) {
+	rn, err := FlattenRepoPath(repoPrefix, originalImage)
+	if err != nil {
+		return image.EmptyName, err
+	}
 
 	// Preserve any tag
 	if tag := originalImage.Tag(); tag != "" {
 		var err error
 		rn, err = rn.WithTag(tag)
 		if err != nil {
-			panic(err) // should never occur
+			return image.EmptyName, err // should never occur
 		}
 	}
 
@@ -40,9 +43,9 @@ func FlattenRepoPathPreserveTagDigest(repoPrefix string, originalImage image.Nam
 		var err error
 		rn, err = rn.WithDigest(dig)
 		if err != nil {
-			panic(err) // should never occur
+			return image.EmptyName, err // should never occur
 		}
 	}
 
-	return rn
+	return rn, nil
 }

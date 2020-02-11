@@ -30,10 +30,12 @@ var _ = Describe("FlattenRepoPath", func() {
 	)
 
 	JustBeforeEach(func() {
-		mapped = pathmapping.FlattenRepoPath("test.host/testuser", name).String()
+		mappedImage, err := pathmapping.FlattenRepoPath("test.host/testuser", name)
+		Expect(err).NotTo(HaveOccurred())
+		mapped = mappedImage.String()
 
 		// check that the mapped path is valid
-		_, err := image.NewName(mapped)
+		_, err = image.NewName(mapped)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
