@@ -156,6 +156,8 @@ which provided a command line interface for relocating the images in its distrib
 The riff project also [experimented](https://github.com/projectriff/cnab-k8s-installer-base) with using this
 repository to create CNAB bundles which could relocate themselves (before duffle could do relocation).
 
+[sheaf](https://github.com/bryanl/sheaf) uses this repository to create OCI image layouts and to relocate images.
+
 ## Alternatives
 
 If this repository isn't quite what you're looking for, try:
